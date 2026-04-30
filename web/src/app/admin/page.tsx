@@ -16,23 +16,78 @@ export default async function AdminDashboard() {
   }
 
   return (
-    <div className="max-w-6xl mx-auto px-4 sm:px-6 py-8">
-      <div className="mb-8 flex items-end justify-between flex-wrap gap-4">
-        <div>
-          <div className="kicker mb-2">Match Day · 30 Apr</div>
-          <h1 className="display text-3xl font-bold">All matches</h1>
-          <p className="text-ink-200 text-sm mt-2">
-            Pick a match and enter the final score. Group standings and the bracket update automatically.
-          </p>
-        </div>
-        <div className="surface rounded-xl px-5 py-3 flex items-center gap-6">
-          <Stat label="Total"     value={summary.total} />
-          <Stat label="Done"      value={summary.done} accent="red" />
-          <Stat label="Group"     value={`${summary.groupDone}/${summary.groupTotal}`} />
-        </div>
+    <div className="max-w-6xl mx-auto px-4 sm:px-6 py-6 sm:py-8">
+      {/* Header */}
+      <div className="mb-6 sm:mb-8">
+        <div className="kicker mb-2">Match Day · 30 Apr</div>
+        <h1 className="display text-2xl sm:text-3xl font-bold">All matches</h1>
+        <p className="text-ink-200 text-sm mt-2 max-w-xl">
+          Pick a match and enter the final score. Group standings and the bracket update automatically.
+        </p>
       </div>
 
-      <div className="surface rounded-2xl overflow-hidden shadow-card">
+      {/* Summary strip */}
+      <div className="surface rounded-xl px-4 sm:px-5 py-3 mb-5 grid grid-cols-3 gap-4 sm:flex sm:items-center sm:gap-6 w-full sm:w-auto sm:inline-flex">
+        <Stat label="Total" value={summary.total} />
+        <Stat label="Done"  value={summary.done} accent="red" />
+        <Stat label="Group" value={`${summary.groupDone}/${summary.groupTotal}`} />
+      </div>
+
+      {/* MOBILE: stacked cards */}
+      <div className="md:hidden space-y-3">
+        {rows.map(({ slot, match }) => {
+          const known = match.team_a && match.team_b;
+          const done  = match.status === 'done';
+          return (
+            <Link
+              key={match.id}
+              href={`/admin/result/${match.id}`}
+              className="tap block surface rounded-xl p-4 active:bg-white/5 transition-colors"
+            >
+              <div className="flex items-center justify-between gap-2 mb-2">
+                <div className="flex items-baseline gap-2 min-w-0">
+                  <span className="num font-bold text-base">{formatTime(slot.start_time)}</span>
+                  <span className="text-[10px] uppercase tracking-wider text-ink-300 font-semibold truncate">
+                    Court {match.court}
+                    {match.referee && <> · {match.referee.name}</>}
+                  </span>
+                </div>
+                {done
+                  ? <span className="pill-final shrink-0 px-2 py-0.5 rounded text-[9px] font-bold tracking-wider uppercase">Final</span>
+                  : <span className="pill-sched shrink-0 px-2 py-0.5 rounded text-[9px] font-bold tracking-wider uppercase">Scheduled</span>}
+              </div>
+
+              <div className="flex items-baseline gap-2 mb-1">
+                <span className={`text-[10px] uppercase tracking-widest font-bold ${stageColor(match.stage)}`}>
+                  {stageLabel(match.stage)}
+                </span>
+              </div>
+
+              {known ? (
+                <div className="font-semibold text-[15px] leading-snug">
+                  {match.team_a!.name} <span className="text-ink-300">vs</span> {match.team_b!.name}
+                </div>
+              ) : (
+                <div className="font-semibold text-ink-200 italic text-[15px]">{match.stage_label}</div>
+              )}
+
+              {done && (
+                <div className="num text-ink-100 text-base font-bold mt-1">
+                  {match.score_a} <span className="text-ink-300">—</span> {match.score_b}
+                </div>
+              )}
+
+              <div className="mt-3 text-xs text-brand-red font-bold flex items-center gap-1">
+                {done ? 'Edit result' : known ? 'Enter result' : 'Set teams'}
+                <span aria-hidden>→</span>
+              </div>
+            </Link>
+          );
+        })}
+      </div>
+
+      {/* DESKTOP: full table */}
+      <div className="hidden md:block surface rounded-2xl overflow-hidden shadow-card">
         <table className="match-table w-full text-sm">
           <thead className="bg-ink-700/70 border-b border-white/5">
             <tr className="text-[10px] uppercase tracking-[0.18em] text-ink-200">
@@ -48,7 +103,7 @@ export default async function AdminDashboard() {
           <tbody className="divide-y divide-white/5">
             {rows.map(({ slot, match }) => {
               const known = match.team_a && match.team_b;
-              const done = match.status === 'done';
+              const done  = match.status === 'done';
               return (
                 <tr key={match.id} className={done ? 'row-done' : ''}>
                   <td className="px-4 py-3 num font-bold">{formatTime(slot.start_time)}</td>
@@ -101,7 +156,7 @@ export default async function AdminDashboard() {
 function Stat({ label, value, accent }: { label: string; value: string | number; accent?: 'red' }) {
   return (
     <div>
-      <div className={`num text-2xl font-extrabold ${accent === 'red' ? 'text-brand-red' : ''}`}>{value}</div>
+      <div className={`num text-xl sm:text-2xl font-extrabold ${accent === 'red' ? 'text-brand-red' : ''}`}>{value}</div>
       <div className="text-[10px] uppercase tracking-widest text-ink-300 font-semibold">{label}</div>
     </div>
   );

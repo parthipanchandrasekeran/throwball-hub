@@ -118,17 +118,17 @@ export default async function ResultPage({
   const isKnockout = match.stage !== 'group';
 
   return (
-    <div className="max-w-2xl mx-auto px-4 sm:px-6 py-10">
+    <div className="max-w-2xl mx-auto px-4 sm:px-6 py-6 sm:py-10">
       <Link href="/admin" className="text-xs text-ink-200 hover:text-ink-50 font-semibold">
         ← All matches
       </Link>
 
       <div className="mt-4 mb-6">
-        <div className="kicker mb-2">
+        <div className="kicker mb-2 text-[10px] sm:text-[11px]">
           {formatTime(match.slot.start_time)} — {formatTime(match.slot.end_time)} · Court {match.court}
           {match.referee && <> · Ref {match.referee.name}</>}
         </div>
-        <h1 className="display text-3xl font-bold">
+        <h1 className="display text-xl sm:text-3xl font-bold leading-tight">
           {known ? <>{match.team_a!.name} <span className="text-ink-300">vs</span> {match.team_b!.name}</>
                  : <span className="italic text-ink-100">{match.stage_label}</span>}
         </h1>
@@ -158,22 +158,22 @@ export default async function ResultPage({
 
       {/* SCORE ENTRY (only after teams are known) */}
       {known && (
-        <form action={saveScore} className="surface rounded-2xl p-6 shadow-card">
+        <form action={saveScore} className="surface rounded-2xl p-5 sm:p-6 shadow-card">
           <input type="hidden" name="id" value={match.id} />
           <h2 className="text-sm font-bold uppercase tracking-widest text-ink-100 mb-5">
             {done ? 'Edit final score' : 'Enter final score'}
           </h2>
 
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-2 gap-3 sm:gap-4">
             <ScoreField label={match.team_a!.name} color={match.team_a!.color} name="score_a" defaultValue={match.score_a} />
             <ScoreField label={match.team_b!.name} color={match.team_b!.color} name="score_b" defaultValue={match.score_b} />
           </div>
 
-          <div className="mt-6 flex items-center gap-3">
-            <button type="submit" className="bg-brand-red hover:bg-brand-redDk transition-colors text-white font-bold py-2.5 px-5 rounded-lg text-sm">
+          <div className="mt-6 flex flex-col-reverse sm:flex-row items-stretch sm:items-center gap-2 sm:gap-3">
+            <Link href="/admin" className="chip text-center px-4 py-3 sm:py-2 rounded-md font-semibold text-sm">Cancel</Link>
+            <button type="submit" className="flex-1 sm:flex-none bg-brand-red hover:bg-brand-redDk transition-colors text-white font-bold py-3 sm:py-2.5 px-5 rounded-lg text-sm">
               {done ? 'Update result' : 'Save result'}
             </button>
-            <Link href="/admin" className="chip px-4 py-2 rounded-md font-semibold text-sm">Cancel</Link>
           </div>
         </form>
       )}
@@ -213,11 +213,13 @@ function ScoreField({
       </div>
       <input
         type="number"
+        inputMode="numeric"
+        pattern="[0-9]*"
         name={name}
         min={0}
         required
         defaultValue={defaultValue ?? ''}
-        className="w-full bg-ink-700/60 border border-white/10 rounded-lg px-3 py-3 text-2xl font-mono font-bold text-center focus:border-brand-red focus:outline-none focus:ring-2 focus:ring-brand-red/30"
+        className="w-full bg-ink-700/60 border border-white/10 rounded-lg px-3 py-4 sm:py-3 text-3xl sm:text-2xl font-mono font-bold text-center focus:border-brand-red focus:outline-none focus:ring-2 focus:ring-brand-red/30"
       />
     </label>
   );
