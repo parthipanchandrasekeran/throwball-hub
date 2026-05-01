@@ -48,13 +48,24 @@ export type StandingsRow = {
   name: string;
   color: string;
   short_name: string | null;
+  /** MP — Matches Played */
   played: number;
+  /** W */
   won: number;
+  /** L */
   lost: number;
+  /** F — Sets For */
   sets_won: number;
+  /** A — Sets Against */
   sets_lost: number;
+  /** D — Sets Difference */
+  sets_diff: number;
   pf: number;
   pa: number;
+  /** PD — Points Difference */
   diff: number;
+  /** P */
   points: number;
+  /** EP — Extras Points (reserved for future scoring rules) */
+  extra_points: number;
 };

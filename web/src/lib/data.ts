@@ -46,11 +46,12 @@ export async function getStandings(): Promise<StandingsRow[]> {
 
   if (error) throw new Error(`Failed to load standings: ${error.message}`);
 
-  // Standard tournament sort: points desc, diff desc, won desc, name asc.
+  // Tiebreakers: total Points → Wins → Sets Difference → Points Difference → name.
   return (data ?? []).sort((a, b) => {
-    if (b.points !== a.points) return b.points - a.points;
-    if (b.diff   !== a.diff)   return b.diff   - a.diff;
-    if (b.won    !== a.won)    return b.won    - a.won;
+    if (b.points    !== a.points)    return b.points    - a.points;
+    if (b.won       !== a.won)       return b.won       - a.won;
+    if (b.sets_diff !== a.sets_diff) return b.sets_diff - a.sets_diff;
+    if (b.diff      !== a.diff)      return b.diff      - a.diff;
     return a.name.localeCompare(b.name);
   });
 }
