@@ -27,7 +27,6 @@ export const metadata: Metadata = {
   title: "Throwball Hub — Women's National Championship 2026",
   description:
     "Schedule, standings and results for the Throwball Federation of Canada Women's National Championship 2026.",
-  icons: { icon: '/tfc-logo.png' },
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
