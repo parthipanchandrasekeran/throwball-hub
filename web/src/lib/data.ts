@@ -12,8 +12,10 @@ const SLOT_QUERY = `
   matches (
     id,
     court,
-    score_a,
-    score_b,
+    score_a, score_b,
+    set1_a, set1_b,
+    set2_a, set2_b,
+    set3_a, set3_b,
     status,
     stage,
     stage_label,

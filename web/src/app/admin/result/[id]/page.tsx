@@ -2,7 +2,7 @@ import Link from 'next/link';
 import { redirect, notFound } from 'next/navigation';
 import { revalidatePath } from 'next/cache';
 import { supabase } from '@/lib/supabase';
-import { formatTime } from '@/lib/format';
+import { formatTime, setBreakdown } from '@/lib/format';
 import type { Team } from '@/lib/types';
 
 export const revalidate = 0;
@@ -12,6 +12,9 @@ type MatchRow = {
   court: number;
   score_a: number | null;
   score_b: number | null;
+  set1_a: number | null; set1_b: number | null;
+  set2_a: number | null; set2_b: number | null;
+  set3_a: number | null; set3_b: number | null;
   status: 'scheduled' | 'done';
   stage: 'group' | 'sf' | 'final' | 'third_place';
   stage_label: string | null;
@@ -25,7 +28,10 @@ async function loadMatch(id: number): Promise<MatchRow | null> {
   const { data, error } = await supabase
     .from('matches')
     .select(`
-      id, court, score_a, score_b, status, stage, stage_label,
+      id, court,
+      score_a, score_b,
+      set1_a, set1_b, set2_a, set2_b, set3_a, set3_b,
+      status, stage, stage_label,
       team_a:teams!team_a_id ( id, name, short_name, color ),
       team_b:teams!team_b_id ( id, name, short_name, color ),
       referee:referees ( name ),
@@ -44,16 +50,27 @@ async function loadTeams(): Promise<Team[]> {
 
 /* -------- server actions -------- */
 
+function readSet(formData: FormData, prefix: string): { a: number | null; b: number | null } {
+  const ra = formData.get(`${prefix}_a`);
+  const rb = formData.get(`${prefix}_b`);
+  const aStr = String(ra ?? '').trim();
+  const bStr = String(rb ?? '').trim();
+  if (aStr === '' && bStr === '') return { a: null, b: null };
+  return { a: aStr === '' ? null : Number(aStr), b: bStr === '' ? null : Number(bStr) };
+}
+
 async function saveScore(formData: FormData) {
   'use server';
   const id = Number(formData.get('id'));
-  const score_a = Number(formData.get('score_a'));
-  const score_b = Number(formData.get('score_b'));
+  const s1 = readSet(formData, 'set1');
+  const s2 = readSet(formData, 'set2');
+  const s3 = readSet(formData, 'set3');
 
   const { error } = await supabase.rpc('admin_save_match_result', {
     p_match_id: id,
-    p_score_a:  score_a,
-    p_score_b:  score_b,
+    p_set1_a: s1.a, p_set1_b: s1.b,
+    p_set2_a: s2.a, p_set2_b: s2.b,
+    p_set3_a: s3.a, p_set3_b: s3.b,
   });
   if (error) redirect(`/admin/result/${id}?error=${encodeURIComponent(error.message)}`);
 
@@ -132,6 +149,15 @@ export default async function ResultPage({
           {known ? <>{match.team_a!.name} <span className="text-ink-300">vs</span> {match.team_b!.name}</>
                  : <span className="italic text-ink-100">{match.stage_label}</span>}
         </h1>
+        {done && (
+          <div className="mt-3 flex items-baseline gap-3">
+            <span className="num text-2xl font-extrabold">{match.score_a}–{match.score_b}</span>
+            <span className="text-[10px] uppercase tracking-widest text-ink-300 font-semibold">sets</span>
+            {setBreakdown(match) && (
+              <span className="num text-xs text-ink-300">{setBreakdown(match)}</span>
+            )}
+          </div>
+        )}
       </div>
 
       {sp.error && (
@@ -140,9 +166,9 @@ export default async function ResultPage({
         </div>
       )}
 
-      {/* TEAM ASSIGNMENT (knockouts only, before teams are set) */}
+      {/* TEAM ASSIGNMENT (knockouts, before teams set) */}
       {isKnockout && !known && (
-        <form action={assignTeams} className="surface rounded-2xl p-6 mb-5 shadow-card">
+        <form action={assignTeams} className="surface rounded-2xl p-5 sm:p-6 mb-5 shadow-card">
           <input type="hidden" name="id" value={match.id} />
           <h2 className="text-sm font-bold uppercase tracking-widest text-brand-gold mb-1">Step 1 · Assign teams</h2>
           <p className="text-xs text-ink-300 mb-5">Once group standings are settled, pick the two teams playing this knockout match.</p>
@@ -150,24 +176,49 @@ export default async function ResultPage({
             <TeamSelect name="team_a_id" label="Team A" teams={teams} />
             <TeamSelect name="team_b_id" label="Team B" teams={teams} />
           </div>
-          <button type="submit" className="mt-6 bg-brand-gold hover:bg-brand-goldLt transition-colors text-ink-900 font-bold py-2.5 px-5 rounded-lg text-sm">
+          <button type="submit" className="mt-6 w-full sm:w-auto bg-brand-gold hover:bg-brand-goldLt transition-colors text-ink-900 font-bold py-3 sm:py-2.5 px-5 rounded-lg text-sm">
             Save teams
           </button>
         </form>
       )}
 
-      {/* SCORE ENTRY (only after teams are known) */}
+      {/* SCORE ENTRY (best-of-3 sets) */}
       {known && (
         <form action={saveScore} className="surface rounded-2xl p-5 sm:p-6 shadow-card">
           <input type="hidden" name="id" value={match.id} />
-          <h2 className="text-sm font-bold uppercase tracking-widest text-ink-100 mb-5">
-            {done ? 'Edit final score' : 'Enter final score'}
-          </h2>
 
-          <div className="grid grid-cols-2 gap-3 sm:gap-4">
-            <ScoreField label={match.team_a!.name} color={match.team_a!.color} name="score_a" defaultValue={match.score_a} />
-            <ScoreField label={match.team_b!.name} color={match.team_b!.color} name="score_b" defaultValue={match.score_b} />
+          <div className="flex items-baseline justify-between mb-4">
+            <h2 className="text-sm font-bold uppercase tracking-widest text-ink-100">
+              {done ? 'Edit set scores' : 'Enter set scores'}
+            </h2>
+            <span className="text-[10px] text-ink-300 uppercase tracking-widest font-semibold">Best of 3 · first to 15</span>
           </div>
+
+          {/* Header row */}
+          <div className="hidden sm:grid grid-cols-[1fr_64px_64px_64px] gap-3 items-center text-[10px] uppercase tracking-widest text-ink-300 font-semibold mb-2">
+            <div></div>
+            <div className="text-center">Set 1</div>
+            <div className="text-center">Set 2</div>
+            <div className="text-center">Set 3</div>
+          </div>
+
+          <TeamRow
+            label={match.team_a!.name}
+            color={match.team_a!.color}
+            namePrefix="a"
+            defaults={[match.set1_a, match.set2_a, match.set3_a]}
+          />
+          <div className="my-2 border-t border-white/5" />
+          <TeamRow
+            label={match.team_b!.name}
+            color={match.team_b!.color}
+            namePrefix="b"
+            defaults={[match.set1_b, match.set2_b, match.set3_b]}
+          />
+
+          <p className="mt-4 text-[11px] text-ink-300">
+            Leave Set 3 blank if one team won the first two sets.
+          </p>
 
           <div className="mt-6 flex flex-col-reverse sm:flex-row items-stretch sm:items-center gap-2 sm:gap-3">
             <Link href="/admin" className="chip text-center px-4 py-3 sm:py-2 rounded-md font-semibold text-sm">Cancel</Link>
@@ -178,7 +229,6 @@ export default async function ResultPage({
         </form>
       )}
 
-      {/* CLEAR (only when result already entered) */}
       {done && (
         <form action={clearScore} className="mt-5">
           <input type="hidden" name="id" value={match.id} />
@@ -196,30 +246,46 @@ export default async function ResultPage({
 
 /* -------- form bits -------- */
 
-function ScoreField({
-  label, color, name, defaultValue,
-}: { label: string; color: string; name: string; defaultValue: number | null }) {
+function TeamRow({
+  label, color, namePrefix, defaults,
+}: { label: string; color: string; namePrefix: 'a' | 'b'; defaults: (number | null)[] }) {
   return (
-    <label className="block">
-      <div className="flex items-center text-sm font-semibold mb-2">
+    <div className="grid grid-cols-[1fr_64px_64px_64px] sm:grid-cols-[1fr_64px_64px_64px] gap-3 items-center">
+      <div className="flex items-center font-bold text-sm sm:text-base min-w-0">
         <span
-          className="team-bar mr-2"
+          className="team-bar mr-2 shrink-0"
           style={{
             background: color,
             boxShadow: color.toLowerCase() === '#1f1f1f' ? '0 0 0 2px rgba(255,255,255,0.18)' : undefined,
           }}
         />
-        {label}
+        <span className="truncate">{label}</span>
       </div>
+      <SetInput name={`set1_${namePrefix}`} defaultValue={defaults[0]} mobileLabel="S1" />
+      <SetInput name={`set2_${namePrefix}`} defaultValue={defaults[1]} mobileLabel="S2" />
+      <SetInput name={`set3_${namePrefix}`} defaultValue={defaults[2]} mobileLabel="S3" optional />
+    </div>
+  );
+}
+
+function SetInput({
+  name, defaultValue, mobileLabel, optional,
+}: { name: string; defaultValue: number | null; mobileLabel: string; optional?: boolean }) {
+  return (
+    <label className="block">
+      <span className="sm:hidden text-[9px] uppercase tracking-widest text-ink-300 font-semibold block mb-1 text-center">
+        {mobileLabel}{optional ? ' (opt)' : ''}
+      </span>
       <input
         type="number"
         inputMode="numeric"
         pattern="[0-9]*"
         name={name}
         min={0}
-        required
+        max={50}
         defaultValue={defaultValue ?? ''}
-        className="w-full bg-ink-700/60 border border-white/10 rounded-lg px-3 py-4 sm:py-3 text-3xl sm:text-2xl font-mono font-bold text-center focus:border-brand-red focus:outline-none focus:ring-2 focus:ring-brand-red/30"
+        placeholder={optional ? '—' : '0'}
+        className="w-full bg-ink-700/60 border border-white/10 rounded-lg px-2 py-3 sm:py-2.5 text-xl sm:text-lg font-mono font-bold text-center focus:border-brand-red focus:outline-none focus:ring-2 focus:ring-brand-red/30"
       />
     </label>
   );

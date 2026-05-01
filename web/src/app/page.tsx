@@ -1,5 +1,5 @@
 import { getSlots, getStandings, summarizeMatches } from '@/lib/data';
-import { formatTime } from '@/lib/format';
+import { formatTime, setBreakdown } from '@/lib/format';
 import type { Match, Slot, Team } from '@/lib/types';
 
 export const revalidate = 0;
@@ -203,17 +203,24 @@ function MatchCell({ match }: { match: Match }) {
   const done = match.status === 'done';
   const aWon = done && (match.score_a ?? 0) > (match.score_b ?? 0);
   const bWon = done && (match.score_b ?? 0) > (match.score_a ?? 0);
+  const breakdown = done ? setBreakdown(match) : null;
 
   return (
     <div className="flex items-center justify-between gap-4">
       <div className="min-w-0 space-y-1.5">
         <TeamLine team={match.team_a} winner={aWon} done={done} />
         <TeamLine team={match.team_b} winner={bWon} done={done} />
+        {breakdown && (
+          <div className="num text-[10px] text-ink-300 mt-1">
+            {breakdown}
+          </div>
+        )}
       </div>
       {done && (
-        <div className="text-right space-y-1">
+        <div className="text-right space-y-1 shrink-0">
           <div className={`score ${aWon ? '' : 'loser'}`}>{match.score_a}</div>
           <div className={`score ${bWon ? '' : 'loser'}`}>{match.score_b}</div>
+          <div className="text-[9px] uppercase tracking-widest text-ink-300 font-semibold">sets</div>
         </div>
       )}
     </div>
@@ -318,6 +325,7 @@ function MatchCardMobile({ slot, match }: { slot: Slot; match: Match }) {
   const done = match.status === 'done';
   const aWon = done && (match.score_a ?? 0) > (match.score_b ?? 0);
   const bWon = done && (match.score_b ?? 0) > (match.score_a ?? 0);
+  const breakdown = done ? setBreakdown(match) : null;
 
   return (
     <div className="surface rounded-xl p-4">
@@ -344,6 +352,11 @@ function MatchCardMobile({ slot, match }: { slot: Slot; match: Match }) {
         </div>
         {done && <div className="score-sm">{match.score_b}</div>}
       </div>
+      {breakdown && (
+        <div className="num text-[11px] text-ink-300 mt-2 pt-2 border-t border-white/5">
+          Sets: {breakdown}
+        </div>
+      )}
     </div>
   );
 }

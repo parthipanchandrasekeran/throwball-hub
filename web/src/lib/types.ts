@@ -14,8 +14,16 @@ export type SlotKind = 'play' | 'break';
 export type Match = {
   id: number;
   court: number;
+  /** Sets won by team A (0, 1, or 2). */
   score_a: number | null;
+  /** Sets won by team B (0, 1, or 2). */
   score_b: number | null;
+  set1_a: number | null;
+  set1_b: number | null;
+  set2_a: number | null;
+  set2_b: number | null;
+  set3_a: number | null;
+  set3_b: number | null;
   status: MatchStatus;
   stage: MatchStage;
   stage_label: string | null;
@@ -43,6 +51,8 @@ export type StandingsRow = {
   played: number;
   won: number;
   lost: number;
+  sets_won: number;
+  sets_lost: number;
   pf: number;
   pa: number;
   diff: number;

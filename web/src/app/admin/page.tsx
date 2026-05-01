@@ -1,6 +1,6 @@
 import Link from 'next/link';
 import { getSlots, summarizeMatches } from '@/lib/data';
-import { formatTime } from '@/lib/format';
+import { formatTime, setBreakdown } from '@/lib/format';
 import type { Match, Slot } from '@/lib/types';
 
 export const revalidate = 0;
@@ -72,8 +72,14 @@ export default async function AdminDashboard() {
               )}
 
               {done && (
-                <div className="num text-ink-100 text-base font-bold mt-1">
-                  {match.score_a} <span className="text-ink-300">—</span> {match.score_b}
+                <div className="mt-1">
+                  <div className="num text-ink-100 text-base font-bold">
+                    {match.score_a} <span className="text-ink-300">—</span> {match.score_b}{' '}
+                    <span className="text-[10px] uppercase tracking-widest text-ink-300 font-semibold ml-1">sets</span>
+                  </div>
+                  {setBreakdown(match) && (
+                    <div className="num text-[11px] text-ink-300 mt-0.5">{setBreakdown(match)}</div>
+                  )}
                 </div>
               )}
 
@@ -119,7 +125,8 @@ export default async function AdminDashboard() {
                         <div className="font-semibold">{match.team_a!.name} <span className="text-ink-300">vs</span> {match.team_b!.name}</div>
                         {done && (
                           <div className="num text-ink-200 text-xs">
-                            {match.score_a} — {match.score_b}
+                            <span className="font-bold">{match.score_a}–{match.score_b}</span>
+                            {setBreakdown(match) && <span className="text-ink-300 ml-2">({setBreakdown(match)})</span>}
                           </div>
                         )}
                       </div>
