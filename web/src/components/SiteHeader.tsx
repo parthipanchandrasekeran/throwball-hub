@@ -1,5 +1,5 @@
 import Image from 'next/image';
-import Link from 'next/link';
+import { NavLinks } from '@/components/NavLinks';
 
 export function SiteHeader() {
   return (
@@ -11,11 +11,7 @@ export function SiteHeader() {
             <span className="kicker shrink-0">Live</span>
             <span className="hidden sm:inline truncate">Toronto · Sat 30 Apr 2026</span>
           </div>
-          <nav className="flex items-center gap-0.5 sm:gap-1 text-ink-100 shrink-0">
-            <Link href="/"          className="px-2 sm:px-3 py-1.5 rounded-md hover:bg-white/5 font-semibold">Schedule</Link>
-            <Link href="/standings" className="px-2 sm:px-3 py-1.5 rounded-md hover:bg-white/5 font-semibold text-ink-200">Standings</Link>
-            <Link href="/bracket"   className="px-2 sm:px-3 py-1.5 rounded-md hover:bg-white/5 font-semibold text-ink-200">Bracket</Link>
-          </nav>
+          <NavLinks />
         </div>
       </div>
 
