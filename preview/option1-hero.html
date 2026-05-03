@@ -1,0 +1,214 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Option 1 mockup v2 — Side-by-side hero</title>
+  <link rel="icon" href="assets/tfc-logo.png" />
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;700;800&display=swap" rel="stylesheet" />
+  <script>
+    tailwind.config = {
+      theme: { extend: {
+        fontFamily: {
+          sans:    ['Inter', 'system-ui', 'sans-serif'],
+          display: ['"Space Grotesk"', 'Inter', 'sans-serif'],
+          mono:    ['"JetBrains Mono"', 'ui-monospace', 'monospace'],
+        },
+        colors: {
+          ink:   { 50:'#F5F5F7', 100:'#D6D6DC', 200:'#9A9AA6', 300:'#5A5A66', 400:'#3A3A44', 500:'#26262E', 600:'#1C1C24', 700:'#15151B', 800:'#0E0E12', 900:'#070709' },
+          brand: { red:'#E63946', redDk:'#B22230', gold:'#D4AF37', goldLt:'#F0D67A' },
+        },
+      } },
+    };
+  </script>
+  <style>
+    body { font-family: 'Inter', sans-serif; background:#070709; color:#F5F5F7; -webkit-font-smoothing:antialiased; }
+    .display { font-family: 'Space Grotesk', sans-serif; letter-spacing:-0.02em; }
+    .num { font-family: 'JetBrains Mono', monospace; font-variant-numeric: tabular-nums; }
+    .hero-title { font-family:'Space Grotesk', sans-serif; font-weight:700; letter-spacing:-0.04em; line-height:0.92; }
+
+    .bg-stage {
+      background:
+        radial-gradient(1100px 540px at 12% -10%, rgba(230,57,70,0.18), transparent 60%),
+        radial-gradient(900px 600px at 100% 0%, rgba(212,175,55,0.10), transparent 55%),
+        #070709;
+    }
+    .surface {
+      background: linear-gradient(180deg, rgba(28,28,36,0.85), rgba(20,20,26,0.85));
+      border: 1px solid rgba(255,255,255,0.06);
+    }
+    .kicker {
+      display: inline-flex; align-items: center; gap: 8px;
+      font-size: 11px; font-weight: 700; letter-spacing: 0.18em;
+      text-transform: uppercase; color: #9A9AA6;
+    }
+    .kicker::before {
+      content: ''; width: 6px; height: 6px; border-radius: 9999px;
+      background: #E63946; box-shadow: 0 0 0 4px rgba(230,57,70,0.18);
+    }
+    .chip-on { background:#F5F5F7; color:#070709; border:1px solid #F5F5F7; }
+    .chip    { background:rgba(255,255,255,0.04); color:#D6D6DC; border:1px solid rgba(255,255,255,0.08); }
+
+    .pill-bye   { background: rgba(212,175,55,0.08); color:#E0C25E; border:1px solid rgba(212,175,55,0.22); }
+    .team-bar   { width:3px; height:1.05rem; border-radius:2px; display:inline-block; margin-right:10px; vertical-align:middle; }
+    .stat-divider { width:1px; height:24px; background:rgba(255,255,255,0.10); }
+
+    /* Banner card with subtle shadow + rounded edge so it sits cleanly on the dark stage */
+    .banner-card {
+      box-shadow: 0 20px 50px -20px rgba(0,0,0,0.6), 0 0 0 1px rgba(255,255,255,0.04);
+    }
+
+    .mock-tag {
+      position: fixed; top: 12px; right: 12px; z-index: 50;
+      background: rgba(230,57,70,0.85); color: #fff;
+      font-size: 11px; font-weight: 700; letter-spacing: 0.1em;
+      padding: 6px 12px; border-radius: 999px; text-transform: uppercase;
+    }
+  </style>
+</head>
+<body class="bg-stage">
+
+  <div class="mock-tag">Mockup · Option 1 · v2</div>
+
+  <!-- =============== TOP NAV =============== -->
+  <div class="border-b border-white/5">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 py-2.5 sm:py-3 flex items-center justify-between text-xs gap-3">
+      <div class="flex items-center gap-3 text-ink-200 min-w-0">
+        <span class="kicker shrink-0">Live</span>
+        <span class="hidden sm:inline truncate">Toronto · Sat 9 May 2026</span>
+      </div>
+      <nav class="flex items-center gap-1 text-ink-100 shrink-0">
+        <a href="#" class="chip-on px-3 py-1.5 rounded-md font-semibold text-xs">Schedule</a>
+        <a href="#" class="chip px-3 py-1.5 rounded-md font-semibold text-xs">Standings</a>
+        <a href="#" class="chip px-3 py-1.5 rounded-md font-semibold text-xs">Bracket</a>
+      </nav>
+    </div>
+  </div>
+
+  <!-- =============== HERO: side-by-side on desktop, stacked on mobile =============== -->
+  <header class="max-w-7xl mx-auto px-4 sm:px-6 pt-6 sm:pt-10 pb-6 sm:pb-10">
+    <div class="grid grid-cols-1 lg:grid-cols-[3fr_2fr] gap-6 lg:gap-10 items-center">
+
+      <!-- Banner card -->
+      <div class="banner-card rounded-2xl overflow-hidden">
+        <img src="hero-banner.jpg" alt="Throwball Federation of Canada" class="w-full h-auto block" />
+      </div>
+
+      <!-- Info column (right side on desktop, below on mobile) -->
+      <div class="min-w-0">
+        <div class="kicker mb-3">Season 2026</div>
+        <h1 class="hero-title text-3xl sm:text-5xl lg:text-6xl">
+          Women&apos;s National<br />
+          <span class="text-brand-red">Championship</span>
+        </h1>
+
+        <!-- stat strip -->
+        <dl class="mt-5 grid grid-cols-2 sm:flex sm:flex-wrap sm:items-center gap-x-5 gap-y-3 text-sm text-ink-100">
+          <div class="flex items-baseline gap-1.5">
+            <dd class="num font-bold text-lg text-brand-gold">2026</dd>
+            <span class="text-ink-300 text-xs">Edition</span>
+          </div>
+          <div class="stat-divider hidden sm:block"></div>
+          <div class="flex items-baseline gap-1.5"><dd class="num font-bold text-lg">06</dd><span class="text-ink-300 text-xs">Teams</span></div>
+          <div class="stat-divider hidden sm:block"></div>
+          <div class="flex items-baseline gap-1.5"><dd class="num font-bold text-lg">11</dd><span class="text-ink-300 text-xs">Matches</span></div>
+          <div class="stat-divider hidden sm:block"></div>
+          <div class="flex items-baseline gap-1.5"><dd class="num font-bold text-lg">02</dd><span class="text-ink-300 text-xs">Courts</span></div>
+        </dl>
+
+        <!-- Countdown pill -->
+        <div class="mt-5 inline-flex items-center gap-3 px-3.5 py-2 rounded-full surface text-xs">
+          <span class="text-[10px] uppercase tracking-widest text-ink-300 font-semibold">Tournament starts in</span>
+          <span class="num font-bold text-ink-50 text-sm">5d 22h 11m 09s</span>
+        </div>
+      </div>
+
+    </div>
+    <!-- accent strip -->
+    <div class="mt-8 sm:mt-10 h-[3px] bg-gradient-to-r from-brand-red via-brand-redDk to-transparent"></div>
+  </header>
+
+  <!-- =============== SCHEDULE (abbreviated) =============== -->
+  <main class="max-w-7xl mx-auto px-4 sm:px-6 py-6 sm:py-10">
+    <div class="flex items-end justify-between mb-5">
+      <div>
+        <div class="kicker mb-2">Match Day · 9 May</div>
+        <h2 class="display text-2xl sm:text-3xl font-bold">Schedule</h2>
+      </div>
+      <div class="flex items-center gap-2">
+        <button class="chip-on px-3.5 py-1.5 rounded-full font-semibold text-xs">All</button>
+        <button class="chip px-3.5 py-1.5 rounded-full font-semibold text-xs">Today</button>
+        <button class="chip px-3.5 py-1.5 rounded-full font-semibold text-xs">Done</button>
+      </div>
+    </div>
+
+    <div class="surface rounded-2xl overflow-hidden">
+      <table class="w-full text-sm">
+        <thead class="bg-ink-700/70 border-b border-white/5">
+          <tr class="text-[10px] uppercase tracking-[0.18em] text-ink-200">
+            <th class="text-left px-5 py-3 font-bold w-28">Time</th>
+            <th class="text-left px-5 py-3 font-bold">Court 1</th>
+            <th class="text-left px-5 py-3 font-bold w-28">Referee</th>
+            <th class="text-left px-5 py-3 font-bold">Court 2</th>
+            <th class="text-left px-5 py-3 font-bold w-28">Referee</th>
+            <th class="text-left px-5 py-3 font-bold w-32">Bye</th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-white/5">
+          <tr>
+            <td class="px-5 py-4 align-top">
+              <div class="num font-bold text-base">8:30</div>
+              <div class="text-[10px] text-ink-300 num">9:15</div>
+            </td>
+            <td class="px-5 py-4">
+              <div class="space-y-1.5">
+                <div class="font-semibold flex items-center"><span class="team-bar" style="background:#E63946"></span>Super Sonics</div>
+                <div class="font-semibold flex items-center"><span class="team-bar" style="background:#9B1D2A"></span>Sauga Strikers</div>
+              </div>
+            </td>
+            <td class="px-5 py-4 text-ink-100 font-medium">Saaketh</td>
+            <td class="px-5 py-4">
+              <div class="space-y-1.5">
+                <div class="font-semibold flex items-center"><span class="team-bar" style="background:#3D8BFF"></span>GTA Fireballs</div>
+                <div class="font-semibold flex items-center"><span class="team-bar" style="background:#1F1F1F; box-shadow:0 0 0 2px rgba(255,255,255,0.18)"></span>Net Ninjas</div>
+              </div>
+            </td>
+            <td class="px-5 py-4 text-ink-100 font-medium">Prathipan</td>
+            <td class="px-5 py-4"><span class="pill-bye inline-block px-2.5 py-1 rounded text-[11px] font-semibold">Thunderbirds</span></td>
+          </tr>
+          <tr>
+            <td class="px-5 py-4 align-top">
+              <div class="num font-bold text-base">9:20</div>
+              <div class="text-[10px] text-ink-300 num">10:05</div>
+            </td>
+            <td class="px-5 py-4">
+              <div class="space-y-1.5">
+                <div class="font-semibold flex items-center"><span class="team-bar" style="background:#F2A93B"></span>Sauga Slayers</div>
+                <div class="font-semibold flex items-center"><span class="team-bar" style="background:#1F1F1F; box-shadow:0 0 0 2px rgba(255,255,255,0.18)"></span>Net Ninjas</div>
+              </div>
+            </td>
+            <td class="px-5 py-4 text-ink-100 font-medium">Deepak</td>
+            <td class="px-5 py-4">
+              <div class="space-y-1.5">
+                <div class="font-semibold flex items-center"><span class="team-bar" style="background:#E63946"></span>Super Sonics</div>
+                <div class="font-semibold flex items-center"><span class="team-bar" style="background:#8E5BFF"></span>Thunderbirds</div>
+              </div>
+            </td>
+            <td class="px-5 py-4 text-ink-100 font-medium">Saaketh</td>
+            <td class="px-5 py-4"><span class="pill-bye inline-block px-2.5 py-1 rounded text-[11px] font-semibold">Sauga Strikers</span></td>
+          </tr>
+        </tbody>
+      </table>
+      <div class="text-center text-xs text-ink-300 italic py-3 border-t border-white/5">… 9 more rows</div>
+    </div>
+
+    <p class="mt-6 text-center text-[11px] text-ink-300 italic">
+      Mockup of <strong>Option 1 v2</strong> · live site is not changed.
+    </p>
+  </main>
+
+</body>
+</html>

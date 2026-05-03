@@ -16,58 +16,47 @@ export function SiteHeader() {
         </div>
       </div>
 
-      {/* hero */}
+      {/* hero — banner card (left) + info column (right) on desktop, stacked on mobile */}
       <header>
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 pt-8 sm:pt-16 pb-6 sm:pb-12">
-          <div className="flex items-start gap-4 sm:gap-10">
-            {/* TFC logo (left) */}
-            <div className="relative shrink-0">
-              <div className="absolute inset-0 -m-4 sm:-m-6 logo-ring blur-2xl" />
-              <div className="relative w-16 h-16 sm:w-28 sm:h-28 lg:w-36 lg:h-36 rounded-xl sm:rounded-2xl surface flex items-center justify-center p-2 sm:p-3">
-                <Image src="/tfc-logo.png" alt="TFC" width={144} height={144} className="w-full h-full object-contain" priority />
-              </div>
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 pt-6 sm:pt-10 pb-6 sm:pb-10">
+          <div className="grid grid-cols-1 lg:grid-cols-[3fr_2fr] gap-6 lg:gap-10 items-center">
+
+            {/* Banner card — TFC + ITF logos and federation wordmark all live inside this artwork */}
+            <div className="rounded-2xl overflow-hidden shadow-[0_20px_50px_-20px_rgba(0,0,0,0.6),0_0_0_1px_rgba(255,255,255,0.04)]">
+              <Image
+                src="/hero-banner.jpg"
+                alt="Throwball Federation of Canada — Aim High, Throw Hard"
+                width={1600}
+                height={950}
+                priority
+                className="w-full h-auto block"
+                sizes="(min-width: 1024px) 60vw, 100vw"
+              />
             </div>
 
-            {/* Title */}
-            <div className="flex-1 min-w-0">
-              <div className="kicker mb-2 sm:mb-3 text-[10px] sm:text-[11px]">
-                <span className="hidden sm:inline">Throwball Federation of Canada · </span>
-                <span className="sm:hidden">TFC · </span>
-                Season 2026
-              </div>
-              <h1 className="hero-title text-3xl sm:text-6xl lg:text-7xl">
+            {/* Info column */}
+            <div className="min-w-0">
+              <div className="kicker mb-3">Season 2026</div>
+              <h1 className="hero-title text-3xl sm:text-5xl lg:text-6xl">
                 Women&apos;s National<br />
                 <span className="text-brand-red">Championship</span>
               </h1>
+
+              {/* stats */}
+              <dl className="mt-5 grid grid-cols-2 sm:flex sm:flex-wrap sm:items-center gap-x-5 gap-y-3 text-sm text-ink-100">
+                <Stat label="Edition" value="2026" gold />
+                <Divider />
+                <Stat label="Teams"   value="06" />
+                <Divider />
+                <Stat label="Matches" value="11" />
+                <Divider />
+                <Stat label="Courts"  value="02" />
+              </dl>
+
+              {/* countdown */}
+              <Countdown />
             </div>
 
-            {/* ITF logo (right) — sanctioning body */}
-            <div className="relative shrink-0 hidden sm:block">
-              <div className="relative w-20 h-20 lg:w-28 lg:h-28 rounded-xl sm:rounded-2xl overflow-hidden bg-black">
-                <Image src="/itf-logo.jpeg" alt="ITF" width={112} height={112} className="w-full h-full object-contain" />
-              </div>
-              <div className="text-[9px] uppercase tracking-widest text-ink-300 font-semibold text-center mt-1">Sanctioned by ITF</div>
-            </div>
-          </div>
-
-          {/* stat strip */}
-          <dl className="mt-5 sm:mt-6 grid grid-cols-2 sm:flex sm:flex-wrap sm:items-center gap-x-6 gap-y-3 text-sm text-ink-100">
-            <Stat label="Edition" value="2026" gold />
-            <Divider />
-            <Stat label="Teams"   value="06" />
-            <Divider />
-            <Stat label="Matches" value="11" />
-            <Divider />
-            <Stat label="Courts"  value="02" />
-          </dl>
-
-          {/* Countdown to first match */}
-          <Countdown />
-
-          {/* Mobile-only ITF chip (since we hid the logo on small screens) */}
-          <div className="sm:hidden mt-4 flex items-center gap-2">
-            <Image src="/itf-logo.jpeg" alt="ITF" width={28} height={28} className="rounded-md bg-black" />
-            <span className="text-[10px] uppercase tracking-widest text-ink-300 font-semibold">Sanctioned by ITF</span>
           </div>
         </div>
         <div className="h-[3px] bg-gradient-to-r from-brand-red via-brand-redDk to-transparent" />
