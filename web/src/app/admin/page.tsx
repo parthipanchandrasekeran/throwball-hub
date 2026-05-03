@@ -19,7 +19,7 @@ export default async function AdminDashboard() {
     <div className="max-w-6xl mx-auto px-4 sm:px-6 py-6 sm:py-8">
       {/* Header */}
       <div className="mb-6 sm:mb-8">
-        <div className="kicker mb-2">Match Day · 30 Apr</div>
+        <div className="kicker mb-2">Match Day · 9 May</div>
         <h1 className="display text-2xl sm:text-3xl font-bold">All matches</h1>
         <p className="text-ink-200 text-sm mt-2 max-w-xl">
           Pick a match and enter the final score. Group standings and the bracket update automatically.

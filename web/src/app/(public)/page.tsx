@@ -1,8 +1,10 @@
 import { getSlots, getStandings, summarizeMatches } from '@/lib/data';
-import { formatTime, setBreakdown } from '@/lib/format';
+import { formatTime } from '@/lib/format';
 import type { Match, Slot, Team } from '@/lib/types';
 
-export const revalidate = 0;
+// CDN-cache the schedule for 15s. Admin saves call revalidatePath('/')
+// so updates still appear instantly when scores change.
+export const revalidate = 15;
 
 export default async function HomePage() {
   const [slots, standings] = await Promise.all([getSlots(), getStandings()]);
@@ -55,7 +57,7 @@ export default async function HomePage() {
       <section>
         <div className="flex flex-wrap items-end justify-between gap-3 mb-5">
           <div>
-            <div className="kicker mb-2">Match Day · 30 Apr</div>
+            <div className="kicker mb-2">Match Day · 9 May</div>
             <h2 className="display text-2xl sm:text-3xl font-bold">Schedule</h2>
           </div>
           <div className="flex items-center gap-2">
@@ -201,28 +203,68 @@ function MatchCell({ match }: { match: Match }) {
   }
 
   const done = match.status === 'done';
-  const aWon = done && (match.score_a ?? 0) > (match.score_b ?? 0);
-  const bWon = done && (match.score_b ?? 0) > (match.score_a ?? 0);
-  const breakdown = done ? setBreakdown(match) : null;
-
-  return (
-    <div className="flex items-center justify-between gap-4">
-      <div className="min-w-0 space-y-1.5">
-        <TeamLine team={match.team_a} winner={aWon} done={done} />
-        <TeamLine team={match.team_b} winner={bWon} done={done} />
-        {breakdown && (
-          <div className="num text-[10px] text-ink-300 mt-1">
-            {breakdown}
-          </div>
-        )}
+  if (!done) {
+    return (
+      <div className="space-y-1.5">
+        <TeamLine team={match.team_a} winner={false} done={false} />
+        <TeamLine team={match.team_b} winner={false} done={false} />
       </div>
-      {done && (
-        <div className="text-right space-y-1 shrink-0">
-          <div className={`score ${aWon ? '' : 'loser'}`}>{match.score_a}</div>
-          <div className={`score ${bWon ? '' : 'loser'}`}>{match.score_b}</div>
-          <div className="text-[9px] uppercase tracking-widest text-ink-300 font-semibold">sets</div>
-        </div>
-      )}
+    );
+  }
+
+  const aWon = (match.score_a ?? 0) > (match.score_b ?? 0);
+  const totalA = (match.set1_a ?? 0) + (match.set2_a ?? 0) + (match.set3_a ?? 0);
+  const totalB = (match.set1_b ?? 0) + (match.set2_b ?? 0) + (match.set3_b ?? 0);
+
+  return <ScoreGrid match={match} aWon={aWon} totalA={totalA} totalB={totalB} />;
+}
+
+/* per-set grid: header row + one row per team */
+function ScoreGrid({
+  match, aWon, totalA, totalB,
+}: { match: Match; aWon: boolean; totalA: number; totalB: number }) {
+  return (
+    <div className="space-y-1">
+      <div className="grid grid-cols-[1fr_repeat(4,28px)] gap-1 text-[9px] uppercase tracking-widest text-ink-300 font-bold">
+        <span />
+        <span className="text-center">S1</span>
+        <span className="text-center">S2</span>
+        <span className="text-center">S3</span>
+        <span className="text-center">T</span>
+      </div>
+      <ScoreRow
+        team={match.team_a!}
+        winner={aWon}
+        sets={[match.set1_a, match.set2_a, match.set3_a]}
+        total={totalA}
+      />
+      <ScoreRow
+        team={match.team_b!}
+        winner={!aWon}
+        sets={[match.set1_b, match.set2_b, match.set3_b]}
+        total={totalB}
+      />
+    </div>
+  );
+}
+
+function ScoreRow({ team, winner, sets, total }: {
+  team: Team; winner: boolean;
+  sets: (number | null)[]; total: number;
+}) {
+  const labelCls = winner ? 'winner font-bold' : 'loser font-medium';
+  const numCls   = winner ? 'num text-center font-semibold text-ink-50' : 'num text-center text-ink-300';
+  return (
+    <div className="grid grid-cols-[1fr_repeat(4,28px)] gap-1 items-center text-[13px]">
+      <div className={`${labelCls} flex items-center min-w-0`}>
+        <TeamBar color={team.color} />
+        <span className="truncate">{team.name}</span>
+        {winner && <span className="ml-1.5 text-brand-red">✓</span>}
+      </div>
+      {sets.map((v, i) => (
+        <div key={i} className={numCls}>{v ?? <span className="text-ink-400">—</span>}</div>
+      ))}
+      <div className={`num text-center font-extrabold ${winner ? 'text-ink-50' : 'text-ink-200'}`}>{total}</div>
     </div>
   );
 }
@@ -324,8 +366,8 @@ function MatchCardMobile({ slot, match }: { slot: Slot; match: Match }) {
 
   const done = match.status === 'done';
   const aWon = done && (match.score_a ?? 0) > (match.score_b ?? 0);
-  const bWon = done && (match.score_b ?? 0) > (match.score_a ?? 0);
-  const breakdown = done ? setBreakdown(match) : null;
+  const totalA = (match.set1_a ?? 0) + (match.set2_a ?? 0) + (match.set3_a ?? 0);
+  const totalB = (match.set1_b ?? 0) + (match.set2_b ?? 0) + (match.set3_b ?? 0);
 
   return (
     <div className="surface rounded-xl p-4">
@@ -337,25 +379,17 @@ function MatchCardMobile({ slot, match }: { slot: Slot; match: Match }) {
           </div>
         </div>
         {done
-          ? <span className="pill-final px-2 py-0.5 rounded text-[9px] font-bold tracking-wider uppercase">Final</span>
+          ? <span className="pill-final px-2 py-0.5 rounded text-[9px] font-bold tracking-wider uppercase">Final {match.score_a}-{match.score_b}</span>
           : <span className="pill-sched px-2 py-0.5 rounded text-[9px] font-bold tracking-wider uppercase">Scheduled</span>}
       </div>
-      <div className={`flex items-center justify-between py-1.5 ${done && !aWon ? 'loser' : ''}`}>
-        <div className={`flex items-center ${done && !aWon ? 'font-medium line-through' : 'font-bold'}`}>
-          <TeamBar color={match.team_a.color} />{match.team_a.name}
-        </div>
-        {done && <div className="score-sm">{match.score_a}</div>}
-      </div>
-      <div className={`flex items-center justify-between py-1.5 ${done && !bWon ? 'loser' : ''}`}>
-        <div className={`flex items-center ${done && !bWon ? 'font-medium line-through' : 'font-bold'}`}>
-          <TeamBar color={match.team_b.color} />{match.team_b.name}
-        </div>
-        {done && <div className="score-sm">{match.score_b}</div>}
-      </div>
-      {breakdown && (
-        <div className="num text-[11px] text-ink-300 mt-2 pt-2 border-t border-white/5">
-          Sets: {breakdown}
-        </div>
+
+      {!done ? (
+        <>
+          <div className="flex items-center py-1.5 font-bold"><TeamBar color={match.team_a.color} />{match.team_a.name}</div>
+          <div className="flex items-center py-1.5 font-bold"><TeamBar color={match.team_b.color} />{match.team_b.name}</div>
+        </>
+      ) : (
+        <ScoreGrid match={match} aWon={aWon} totalA={totalA} totalB={totalB} />
       )}
     </div>
   );

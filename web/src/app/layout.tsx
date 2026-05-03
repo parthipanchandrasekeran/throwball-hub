@@ -1,9 +1,6 @@
 import type { Metadata } from 'next';
 import { Inter, Space_Grotesk, JetBrains_Mono } from 'next/font/google';
 import './globals.css';
-import { SiteHeader } from '@/components/SiteHeader';
-import { SiteFooter } from '@/components/SiteFooter';
-import { Background } from '@/components/Background';
 
 const inter = Inter({
   subsets: ['latin'],
@@ -36,13 +33,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       className={`${inter.variable} ${spaceGrotesk.variable} ${jetbrains.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col bg-ink-900">
-        <Background>
-          <SiteHeader />
-          <main className="max-w-7xl mx-auto w-full px-4 sm:px-6 py-10 sm:py-14 relative flex-1">
-            {children}
-          </main>
-          <SiteFooter />
-        </Background>
+        {children}
       </body>
     </html>
   );

@@ -1,7 +1,8 @@
 import { getStandings } from '@/lib/data';
 import type { StandingsRow } from '@/lib/types';
 
-export const revalidate = 0;
+// CDN-cache for 15s; admin saves call revalidatePath('/standings') for instant updates.
+export const revalidate = 15;
 
 const dotShadow = (color: string) =>
   color.toLowerCase() === '#1f1f1f' ? '0 0 0 2px rgba(255,255,255,0.18)' : undefined;

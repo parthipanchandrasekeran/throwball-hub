@@ -2,7 +2,8 @@ import { getSlots, getStandings } from '@/lib/data';
 import { formatTime } from '@/lib/format';
 import type { Match, Slot } from '@/lib/types';
 
-export const revalidate = 0;
+// CDN-cache for 15s; admin saves call revalidatePath('/bracket') for instant updates.
+export const revalidate = 15;
 
 export default async function BracketPage() {
   const [slots, standings] = await Promise.all([getSlots(), getStandings()]);
