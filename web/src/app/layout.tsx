@@ -20,10 +20,31 @@ const jetbrains = JetBrains_Mono({
   weight: ['500', '700', '800'],
 });
 
+const TITLE = "Throwball Hub — Women's National Championship 2026";
+const DESCRIPTION =
+  "Live schedule, standings and results for the Throwball Federation of Canada Women's National Championship — Toronto, 9 May 2026.";
+
 export const metadata: Metadata = {
-  title: "Throwball Hub — Women's National Championship 2026",
-  description:
-    "Schedule, standings and results for the Throwball Federation of Canada Women's National Championship 2026.",
+  metadataBase: new URL('https://throwball-hub.netlify.app'),
+  title: TITLE,
+  description: DESCRIPTION,
+  openGraph: {
+    type: 'website',
+    siteName: 'Throwball Hub',
+    title: TITLE,
+    description: DESCRIPTION,
+    url: '/',
+    locale: 'en_CA',
+    images: [
+      { url: '/og-banner.jpg', width: 1200, height: 630, alt: 'Throwball Federation of Canada — Aim High, Throw Hard' },
+    ],
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: TITLE,
+    description: DESCRIPTION,
+    images: ['/og-banner.jpg'],
+  },
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
