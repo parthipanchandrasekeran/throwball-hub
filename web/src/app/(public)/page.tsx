@@ -24,7 +24,7 @@ export default async function HomePage() {
             <div className="kicker mb-2">Group Stage</div>
             <h2 className="display text-2xl sm:text-3xl font-bold">Standings</h2>
           </div>
-          <a href="/standings" className="text-xs sm:text-sm font-semibold text-ink-100 hover:text-brand-red transition-colors">
+          <a href="/standings" className="inline-flex items-center px-3 py-2 -mx-1 rounded-md text-xs sm:text-sm font-semibold text-ink-100 hover:text-brand-red hover:bg-white/5 transition-colors">
             Full table →
           </a>
         </div>
@@ -66,10 +66,10 @@ export default async function HomePage() {
             <h2 className="display text-2xl sm:text-3xl font-bold">Schedule</h2>
           </div>
           <div className="flex items-center gap-2">
-            <button className="chip-on px-3.5 py-1.5 rounded-full font-semibold text-xs">All</button>
-            <button className="chip   px-3.5 py-1.5 rounded-full font-semibold text-xs">Today</button>
-            <button className="chip   px-3.5 py-1.5 rounded-full font-semibold text-xs">Done</button>
-            <button className="chip   px-3.5 py-1.5 rounded-full font-semibold text-xs">Knockouts</button>
+            <button className="chip-on px-3.5 py-2 rounded-full font-semibold text-xs">All</button>
+            <button className="chip   px-3.5 py-2 rounded-full font-semibold text-xs">Today</button>
+            <button className="chip   px-3.5 py-2 rounded-full font-semibold text-xs">Done</button>
+            <button className="chip   px-3.5 py-2 rounded-full font-semibold text-xs">Knockouts</button>
           </div>
         </div>
 

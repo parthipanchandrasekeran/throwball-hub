@@ -21,7 +21,7 @@ export function SiteHeader() {
               target="_blank"
               rel="noopener sponsored"
               aria-label="Get ArcadeBlast on Google Play"
-              className="ab-pill px-2.5 sm:px-3 py-1.5 rounded-md font-bold text-xs flex items-center gap-1.5 shrink-0"
+              className="ab-pill px-3 py-2 rounded-md font-bold text-xs flex items-center gap-1.5 shrink-0"
             >
               <span aria-hidden>🎮</span>
               <span className="hidden sm:inline">Get the App</span>
