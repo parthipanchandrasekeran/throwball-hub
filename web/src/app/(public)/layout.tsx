@@ -2,6 +2,7 @@ import { SiteHeader } from '@/components/SiteHeader';
 import { SiteFooter } from '@/components/SiteFooter';
 import { Background } from '@/components/Background';
 import { RealtimeMatches } from '@/components/RealtimeMatches';
+import { ArcadeBlastFooter } from '@/components/ArcadeBlastFooter';
 
 export default function PublicLayout({ children }: { children: React.ReactNode }) {
   return (
@@ -12,6 +13,7 @@ export default function PublicLayout({ children }: { children: React.ReactNode }
         {children}
       </main>
       <SiteFooter />
+      <ArcadeBlastFooter />
     </Background>
   );
 }

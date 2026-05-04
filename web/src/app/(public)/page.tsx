@@ -1,6 +1,7 @@
 import { getSlots, getStandings, summarizeMatches } from '@/lib/data';
 import { formatTime } from '@/lib/format';
 import type { Match, Slot, Team } from '@/lib/types';
+import { ArcadeBlastBreakCard } from '@/components/ArcadeBlastBreakCard';
 
 // CDN-cache the schedule for 15s. Admin saves call revalidatePath('/')
 // so updates still appear instantly when scores change.
@@ -146,9 +147,12 @@ function SlotRow({ slot, prevSlot }: { slot: Slot; prevSlot: Slot | null }) {
         <td className="px-5 py-3 align-middle">
           <div className="num font-bold text-base">{formatTime(slot.start_time)}</div>
           <div className="text-[10px] text-ink-300 num">{formatTime(slot.end_time)}</div>
+          <div className="mt-1.5 inline-block px-1.5 py-0.5 rounded text-[9px] font-bold tracking-wider uppercase bg-emerald-500/10 text-emerald-400 border border-emerald-500/30">
+            25 min
+          </div>
         </td>
-        <td colSpan={5} className="px-5 py-3 text-center">
-          <span className="pill-break inline-block px-4 py-1.5 rounded-full text-[11px] font-bold tracking-[0.2em] uppercase">— Break —</span>
+        <td colSpan={5} className="px-3 py-3">
+          <ArcadeBlastBreakCard startTime={slot.start_time} endTime={slot.end_time} />
         </td>
       </tr>
     );
@@ -317,13 +321,7 @@ function stageHeading(match: Match) {
 
 function SlotMobile({ slot, prevSlot }: { slot: Slot; prevSlot: Slot | null }) {
   if (slot.kind === 'break') {
-    return (
-      <div className="flex items-center justify-center py-2">
-        <span className="pill-break inline-block px-4 py-1.5 rounded-full text-[11px] font-bold tracking-[0.2em] uppercase">
-          {formatTime(slot.start_time)} — Break — {formatTime(slot.end_time)}
-        </span>
-      </div>
-    );
+    return <ArcadeBlastBreakCard startTime={slot.start_time} endTime={slot.end_time} />;
   }
 
   const showDivider = isKnockout(slot) && (!prevSlot || !isKnockout(prevSlot));

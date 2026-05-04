@@ -20,6 +20,11 @@
   --color-brand-redDk:  #B22230;
   --color-brand-gold:   #D4AF37;
   --color-brand-goldLt: #F0D67A;
+
+  /* ArcadeBlast accent palette (used for sponsored placements only) */
+  --color-ab-neon:   #22D3EE;
+  --color-ab-purple: #A855F7;
+  --color-ab-deep:   #0B1530;
 }
 
 html, body { background: #070709; color: #F5F5F7; }
@@ -118,3 +123,32 @@ table.match-table { border-collapse: separate; border-spacing: 0; }
 
 .score    { font-family: var(--font-mono); font-weight: 800; font-size: 1.5rem; line-height: 1; }
 .score-sm { font-family: var(--font-mono); font-weight: 700; font-size: 1.1rem; line-height: 1; }
+
+/* ----- ArcadeBlast sponsored placements ----- */
+.ab-pill {
+  background: linear-gradient(180deg, rgba(34,211,238,0.10), rgba(168,85,247,0.10));
+  border: 1px solid rgba(34,211,238,0.40);
+  color: #22D3EE;
+  box-shadow: 0 0 0 1px rgba(34,211,238,0.10), 0 0 24px -6px rgba(34,211,238,0.35);
+  transition: background .15s ease, box-shadow .15s ease;
+}
+.ab-pill:hover {
+  background: linear-gradient(180deg, rgba(34,211,238,0.18), rgba(168,85,247,0.18));
+  box-shadow: 0 0 0 1px rgba(34,211,238,0.20), 0 0 32px -4px rgba(34,211,238,0.55);
+}
+.ab-break {
+  background:
+    radial-gradient(600px 200px at 80% 50%, rgba(168,85,247,0.18), transparent 70%),
+    radial-gradient(500px 200px at 10% 50%, rgba(34,211,238,0.18), transparent 70%),
+    #0B1530;
+  border: 1px solid rgba(34,211,238,0.30);
+  box-shadow: 0 0 0 1px rgba(168,85,247,0.10) inset, 0 12px 36px -8px rgba(11,21,48,0.8);
+}
+.ab-footer-strip {
+  background: linear-gradient(180deg, transparent, rgba(11,21,48,0.7));
+  border-top: 1px solid rgba(34,211,238,0.18);
+}
+.ab-gradient-text {
+  background: linear-gradient(90deg, #22D3EE, #A855F7);
+  -webkit-background-clip: text; background-clip: text; color: transparent;
+}

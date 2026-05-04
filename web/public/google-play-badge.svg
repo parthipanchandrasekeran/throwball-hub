@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 135 40" role="img" aria-label="Get it on Google Play">
+  <rect width="135" height="40" rx="6" fill="#000"/>
+  <rect x="0.5" y="0.5" width="134" height="39" rx="5.5" fill="none" stroke="#A6A6A6"/>
+  <g transform="translate(8, 6)">
+    <!-- Play triangle -->
+    <path d="M0 0 L0 28 L18 14 Z" fill="url(#g)"/>
+  </g>
+  <defs>
+    <linearGradient id="g" x1="0" y1="0" x2="18" y2="28" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#00A0FF"/>
+      <stop offset=".4" stop-color="#00A1FF"/>
+      <stop offset=".7" stop-color="#5BCDFF"/>
+      <stop offset="1" stop-color="#0085FF"/>
+    </linearGradient>
+  </defs>
+  <text x="32" y="16" fill="#fff" font-family="-apple-system, system-ui, Roboto, Arial, sans-serif" font-size="8" font-weight="500" letter-spacing=".4">GET IT ON</text>
+  <text x="32" y="30" fill="#fff" font-family="-apple-system, system-ui, Roboto, Arial, sans-serif" font-size="14" font-weight="700">Google Play</text>
+</svg>

@@ -1,18 +1,33 @@
 import Image from 'next/image';
 import { NavLinks } from '@/components/NavLinks';
 import { Countdown } from '@/components/Countdown';
+import { playStoreUrl } from '@/lib/arcadeblast';
 
 export function SiteHeader() {
   return (
     <>
       {/* top bar */}
       <div className="border-b border-white/5">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 py-2.5 sm:py-3 flex items-center justify-between text-xs gap-3">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 py-2.5 sm:py-3 flex items-center justify-between text-xs gap-2 sm:gap-3">
           <div className="flex items-center gap-3 text-ink-200 min-w-0">
             <span className="kicker shrink-0">Live</span>
             <span className="hidden sm:inline truncate">Toronto · Sat 9 May 2026</span>
           </div>
-          <NavLinks />
+          <div className="flex items-center gap-1 sm:gap-2 shrink-0">
+            <NavLinks />
+            <span className="hidden sm:inline-block w-px h-4 bg-white/10 mx-0.5"></span>
+            <a
+              href={playStoreUrl('nav-cta')}
+              target="_blank"
+              rel="noopener sponsored"
+              aria-label="Get ArcadeBlast on Google Play"
+              className="ab-pill px-2.5 sm:px-3 py-1.5 rounded-md font-bold text-xs flex items-center gap-1.5 shrink-0"
+            >
+              <span aria-hidden>🎮</span>
+              <span className="hidden sm:inline">Get the App</span>
+              <span className="sm:hidden">App</span>
+            </a>
+          </div>
         </div>
       </div>
 
