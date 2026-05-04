@@ -2,8 +2,8 @@ import { getSlots, getStandings } from '@/lib/data';
 import { formatTime } from '@/lib/format';
 import type { Match, Slot } from '@/lib/types';
 
-// CDN-cache for 15s; admin saves call revalidatePath('/bracket') for instant updates.
-export const revalidate = 15;
+// Always fresh — see comment in (public)/page.tsx.
+export const dynamic = 'force-dynamic';
 
 export default async function BracketPage() {
   const [slots, standings] = await Promise.all([getSlots(), getStandings()]);

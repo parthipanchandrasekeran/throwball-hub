@@ -3,9 +3,13 @@ import { formatTime } from '@/lib/format';
 import type { Match, Slot, Team } from '@/lib/types';
 import { ArcadeBlastBreakCard } from '@/components/ArcadeBlastBreakCard';
 
-// CDN-cache the schedule for 15s. Admin saves call revalidatePath('/')
-// so updates still appear instantly when scores change.
-export const revalidate = 15;
+// Always render fresh on each request. Necessary for live score updates:
+// Netlify's CDN cache doesn't reliably invalidate via revalidatePath for App
+// Router pages, which broke realtime: router.refresh() would hit a stale
+// "Next.js; hit" and viewers wouldn't see new scores. With force-dynamic,
+// every request goes to the origin function, RealtimeMatches' router.refresh
+// always gets the latest data, and viewers see updates within ~600ms.
+export const dynamic = 'force-dynamic';
 
 export default async function HomePage() {
   const [slots, standings] = await Promise.all([getSlots(), getStandings()]);
