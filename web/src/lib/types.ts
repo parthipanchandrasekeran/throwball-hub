@@ -3,6 +3,8 @@ export type Team = {
   name: string;
   short_name: string | null;
   color: string;
+  /** Optional path/URL to a square team logo. NULL → fall back to colored bar/dot. */
+  logo_url: string | null;
 };
 
 export type Referee = { id: number; name: string };
@@ -48,6 +50,7 @@ export type StandingsRow = {
   name: string;
   color: string;
   short_name: string | null;
+  logo_url: string | null;
   /** MP — Matches Played */
   played: number;
   /** W */

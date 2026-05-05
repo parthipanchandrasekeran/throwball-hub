@@ -1,0 +1,354 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Team logos placement mockup</title>
+  <link rel="icon" href="assets/tfc-logo.png" />
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;700;800&display=swap" rel="stylesheet" />
+  <script>
+    tailwind.config = { theme: { extend: {
+      fontFamily: {
+        sans:    ['Inter', 'system-ui', 'sans-serif'],
+        display: ['"Space Grotesk"', 'Inter', 'sans-serif'],
+        mono:    ['"JetBrains Mono"', 'ui-monospace', 'monospace'],
+      },
+      colors: {
+        ink:   { 50:'#F5F5F7', 100:'#D6D6DC', 200:'#9A9AA6', 300:'#5A5A66', 400:'#3A3A44', 500:'#26262E', 600:'#1C1C24', 700:'#15151B', 800:'#0E0E12', 900:'#070709' },
+        brand: { red:'#E63946', redDk:'#B22230', gold:'#D4AF37', goldLt:'#F0D67A' },
+      },
+    }}};
+  </script>
+  <style>
+    body { font-family: 'Inter', sans-serif; background:#070709; color:#F5F5F7; -webkit-font-smoothing:antialiased; }
+    .display { font-family: 'Space Grotesk', sans-serif; letter-spacing:-0.02em; }
+    .num { font-family: 'JetBrains Mono', monospace; font-variant-numeric: tabular-nums; }
+
+    .bg-stage {
+      background:
+        radial-gradient(1100px 540px at 12% -10%, rgba(230,57,70,0.18), transparent 60%),
+        radial-gradient(900px 600px at 100% 0%, rgba(212,175,55,0.10), transparent 55%),
+        #070709;
+    }
+    .surface {
+      background: linear-gradient(180deg, rgba(28,28,36,0.85), rgba(20,20,26,0.85));
+      border: 1px solid rgba(255,255,255,0.06);
+    }
+    .kicker {
+      display: inline-flex; align-items: center; gap: 8px;
+      font-size: 11px; font-weight: 700; letter-spacing: 0.18em;
+      text-transform: uppercase; color: #9A9AA6;
+    }
+    .kicker::before {
+      content: ''; width: 6px; height: 6px; border-radius: 9999px;
+      background: #E63946; box-shadow: 0 0 0 4px rgba(230,57,70,0.18);
+    }
+
+    /* TEAM LOGO TILE — uniform circular crop on a dark backing */
+    .team-logo {
+      display: inline-flex; align-items: center; justify-content: center;
+      flex-shrink: 0;
+      background: #FFFFFF;            /* white backing for image-based logos */
+      border: 1px solid rgba(255,255,255,0.12);
+      overflow: hidden;
+      object-fit: cover;
+    }
+    .team-logo.dark-bg { background: #0B0B0F; border-color: rgba(255,255,255,0.06); }
+    .team-logo img { width: 100%; height: 100%; object-fit: cover; display: block; }
+
+    /* WIDE WORDMARK PILL — for the 2 banner-style team logos (Strikers, Slayers) */
+    .team-wordmark {
+      display: inline-flex; align-items: center; justify-content: center;
+      flex-shrink: 0;
+      background: #FFFFFF;
+      border: 1px solid rgba(255,255,255,0.12);
+      overflow: hidden;
+      padding: 4px 8px;
+    }
+    .team-wordmark img { display: block; height: 100%; width: auto; }
+
+    /* sizing variants — square logos */
+    .logo-xs { width: 20px; height: 20px; border-radius: 6px; }
+    .logo-sm { width: 28px; height: 28px; border-radius: 8px; }
+    .logo-md { width: 36px; height: 36px; border-radius: 9px; }
+    .logo-lg { width: 56px; height: 56px; border-radius: 12px; }
+
+    /* sizing variants — wide wordmarks (height-driven, width auto) */
+    .team-wordmark.logo-xs { height: 20px; width: auto; padding: 2px 6px; border-radius: 6px; }
+    .team-wordmark.logo-sm { height: 28px; width: auto; padding: 3px 8px; border-radius: 8px; }
+    .team-wordmark.logo-md { height: 36px; width: auto; padding: 4px 10px; border-radius: 9px; }
+    .team-wordmark.logo-lg { height: 56px; width: auto; padding: 6px 14px; border-radius: 12px; }
+
+    /* annotations on the mockup */
+    .mock-tag {
+      position: fixed; top: 12px; right: 12px; z-index: 50;
+      background: rgba(230,57,70,0.85); color: #fff;
+      font-size: 11px; font-weight: 700; letter-spacing: 0.1em;
+      padding: 6px 12px; border-radius: 999px; text-transform: uppercase;
+    }
+    .annotation { position: relative; }
+    .annotation::before {
+      content: attr(data-ann);
+      position: absolute; left: -110px; top: 50%; transform: translateY(-50%);
+      background: rgba(34,211,238,0.95); color:#070709;
+      font-size: 9px; font-weight: 800; letter-spacing: 0.1em;
+      padding: 4px 8px; border-radius: 4px;
+      white-space: nowrap; text-transform: uppercase;
+    }
+    @media (max-width: 1100px) { .annotation::before { display: none; } }
+
+    .stat-divider { width:1px; height:24px; background:rgba(255,255,255,0.10); }
+    .pill-bye { background: rgba(212,175,55,0.08); color:#E0C25E; border:1px solid rgba(212,175,55,0.22); }
+  </style>
+</head>
+<body class="bg-stage">
+
+  <div class="mock-tag">Mockup · Team logos</div>
+
+  <main class="max-w-7xl mx-auto px-4 sm:px-6 py-8">
+
+    <!-- ============= LOGO PREVIEW (just to show all 6 at common sizes) ============= -->
+    <section class="surface rounded-2xl p-6 mb-10">
+      <div class="kicker mb-3">Logo set · processed</div>
+      <h2 class="display text-xl font-bold mb-4">All 6 teams · sizes used on the live site</h2>
+      <table class="w-full text-sm">
+        <thead class="text-[10px] uppercase tracking-widest text-ink-300">
+          <tr><th class="text-left py-2">Team</th><th>20px (schedule)</th><th>28px (standings table)</th><th>36px (mini-card)</th><th>56px (potential hero)</th></tr>
+        </thead>
+        <tbody class="divide-y divide-white/5">
+          <tr>
+            <td class="py-3 font-semibold">Super Sonics</td>
+            <td class="text-center"><span class="team-logo logo-xs"><img src="team-logos/sonics.png" alt=""></span></td>
+            <td class="text-center"><span class="team-logo logo-sm"><img src="team-logos/sonics.png" alt=""></span></td>
+            <td class="text-center"><span class="team-logo logo-md"><img src="team-logos/sonics.png" alt=""></span></td>
+            <td class="text-center"><span class="team-logo logo-lg"><img src="team-logos/sonics.png" alt=""></span></td>
+          </tr>
+          <tr>
+            <td class="py-3 font-semibold">Sauga Strikers <span class="text-[10px] text-ink-300">(text fallback)</span></td>
+            <td class="text-center"><span class="team-wordmark logo-xs"><img src="team-logos/strikers-wide.png" alt=""></span></td>
+            <td class="text-center"><span class="team-wordmark logo-sm"><img src="team-logos/strikers-wide.png" alt=""></span></td>
+            <td class="text-center"><span class="team-wordmark logo-md"><img src="team-logos/strikers-wide.png" alt=""></span></td>
+            <td class="text-center"><span class="team-wordmark logo-lg"><img src="team-logos/strikers-wide.png" alt=""></span></td>
+          </tr>
+          <tr>
+            <td class="py-3 font-semibold">GTA Fireballs</td>
+            <td class="text-center"><span class="team-logo dark-bg logo-xs"><img src="team-logos/fireballs.png" alt=""></span></td>
+            <td class="text-center"><span class="team-logo dark-bg logo-sm"><img src="team-logos/fireballs.png" alt=""></span></td>
+            <td class="text-center"><span class="team-logo dark-bg logo-md"><img src="team-logos/fireballs.png" alt=""></span></td>
+            <td class="text-center"><span class="team-logo dark-bg logo-lg"><img src="team-logos/fireballs.png" alt=""></span></td>
+          </tr>
+          <tr>
+            <td class="py-3 font-semibold">Net Ninjas</td>
+            <td class="text-center"><span class="team-logo dark-bg logo-xs"><img src="team-logos/ninjas.png" alt=""></span></td>
+            <td class="text-center"><span class="team-logo dark-bg logo-sm"><img src="team-logos/ninjas.png" alt=""></span></td>
+            <td class="text-center"><span class="team-logo dark-bg logo-md"><img src="team-logos/ninjas.png" alt=""></span></td>
+            <td class="text-center"><span class="team-logo dark-bg logo-lg"><img src="team-logos/ninjas.png" alt=""></span></td>
+          </tr>
+          <tr>
+            <td class="py-3 font-semibold">Sauga Slayers <span class="text-[10px] text-ink-300">(text fallback)</span></td>
+            <td class="text-center"><span class="team-wordmark logo-xs"><img src="team-logos/slayers-wide.png" alt=""></span></td>
+            <td class="text-center"><span class="team-wordmark logo-sm"><img src="team-logos/slayers-wide.png" alt=""></span></td>
+            <td class="text-center"><span class="team-wordmark logo-md"><img src="team-logos/slayers-wide.png" alt=""></span></td>
+            <td class="text-center"><span class="team-wordmark logo-lg"><img src="team-logos/slayers-wide.png" alt=""></span></td>
+          </tr>
+          <tr>
+            <td class="py-3 font-semibold">Thunderbirds</td>
+            <td class="text-center"><span class="team-logo dark-bg logo-xs"><img src="team-logos/thunderbirds.png" alt=""></span></td>
+            <td class="text-center"><span class="team-logo dark-bg logo-sm"><img src="team-logos/thunderbirds.png" alt=""></span></td>
+            <td class="text-center"><span class="team-logo dark-bg logo-md"><img src="team-logos/thunderbirds.png" alt=""></span></td>
+            <td class="text-center"><span class="team-logo dark-bg logo-lg"><img src="team-logos/thunderbirds.png" alt=""></span></td>
+          </tr>
+        </tbody>
+      </table>
+      <div class="text-[11px] text-ink-300 mt-4 italic">
+        Strikers + Slayers display as wide wordmark pills (real logo, sponsor text + side figure cropped out for legibility). The other 4 are square mascot tiles.
+      </div>
+    </section>
+
+    <!-- ============= D · MINI STANDINGS (home page) ============= -->
+    <section class="annotation mb-10" data-ann="D · MINI STANDINGS">
+      <div class="kicker mb-2">Group Stage</div>
+      <h2 class="display text-xl font-bold mb-3">Standings</h2>
+      <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
+        <div class="surface rounded-xl p-3 flex flex-col items-center text-center">
+          <span class="team-logo logo-md mb-2"><img src="team-logos/sonics.png" alt=""></span>
+          <div class="text-[10px] font-bold tracking-widest text-brand-gold uppercase">1st</div>
+          <div class="font-bold text-sm mt-0.5">Super Sonics</div>
+          <div class="num text-xl font-extrabold mt-1">6 <span class="text-[9px] text-ink-300">pts</span></div>
+        </div>
+        <div class="surface rounded-xl p-3 flex flex-col items-center text-center">
+          <span class="team-logo dark-bg logo-md mb-2"><img src="team-logos/ninjas.png" alt=""></span>
+          <div class="text-[10px] font-bold tracking-widest text-ink-100 uppercase">2nd</div>
+          <div class="font-bold text-sm mt-0.5">Net Ninjas</div>
+          <div class="num text-xl font-extrabold mt-1">3 <span class="text-[9px] text-ink-300">pts</span></div>
+        </div>
+        <div class="surface rounded-xl p-3 flex flex-col items-center text-center">
+          <span class="team-logo dark-bg logo-md mb-2"><img src="team-logos/fireballs.png" alt=""></span>
+          <div class="text-[10px] font-bold tracking-widest text-ink-100 uppercase">3rd</div>
+          <div class="font-bold text-sm mt-0.5">GTA Fireballs</div>
+          <div class="num text-xl font-extrabold mt-1">3 <span class="text-[9px] text-ink-300">pts</span></div>
+        </div>
+        <div class="surface rounded-xl p-3 flex flex-col items-center text-center">
+          <span class="team-wordmark logo-md mb-2"><img src="team-logos/slayers-wide.png" alt=""></span>
+          <div class="text-[10px] font-bold tracking-widest text-ink-100 uppercase">4th</div>
+          <div class="font-bold text-sm mt-0.5">Sauga Slayers</div>
+          <div class="num text-xl font-extrabold mt-1">3 <span class="text-[9px] text-ink-300">pts</span></div>
+        </div>
+        <div class="surface rounded-xl p-3 flex flex-col items-center text-center">
+          <span class="team-wordmark logo-md mb-2"><img src="team-logos/strikers-wide.png" alt=""></span>
+          <div class="text-[10px] font-bold tracking-widest text-ink-100 uppercase">5th</div>
+          <div class="font-bold text-sm mt-0.5">Sauga Strikers</div>
+          <div class="num text-xl font-extrabold mt-1">0 <span class="text-[9px] text-ink-300">pts</span></div>
+        </div>
+        <div class="surface rounded-xl p-3 flex flex-col items-center text-center">
+          <span class="team-logo dark-bg logo-md mb-2"><img src="team-logos/thunderbirds.png" alt=""></span>
+          <div class="text-[10px] font-bold tracking-widest text-ink-100 uppercase">6th</div>
+          <div class="font-bold text-sm mt-0.5">Thunderbirds</div>
+          <div class="num text-xl font-extrabold mt-1">0 <span class="text-[9px] text-ink-300">pts</span></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============= A · STANDINGS TABLE (full page) ============= -->
+    <section class="annotation mb-10" data-ann="A · /STANDINGS PAGE">
+      <div class="kicker mb-2">Full Table</div>
+      <h2 class="display text-xl font-bold mb-3">Standings</h2>
+      <div class="surface rounded-2xl overflow-hidden">
+        <table class="w-full text-sm">
+          <thead class="bg-ink-700/70 border-b border-white/5">
+            <tr class="text-[10px] uppercase tracking-[0.18em] text-ink-200">
+              <th class="text-left  px-5 py-3 font-bold w-12">#</th>
+              <th class="text-left  px-5 py-3 font-bold">Team</th>
+              <th class="text-right px-3 py-3 font-bold w-12">P</th>
+              <th class="text-right px-3 py-3 font-bold w-12">W</th>
+              <th class="text-right px-3 py-3 font-bold w-12">L</th>
+              <th class="text-right px-3 py-3 font-bold w-16">+/-</th>
+              <th class="text-right px-5 py-3 font-bold w-20">Pts</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-white/5">
+            <tr>
+              <td class="px-5 py-3"><span class="inline-flex items-center justify-center w-7 h-7 rounded-md text-xs font-bold bg-brand-gold/20 text-brand-gold">1</span></td>
+              <td class="px-5 py-3"><div class="flex items-center gap-3 font-bold"><span class="team-logo logo-sm"><img src="team-logos/sonics.png" alt=""></span>Super Sonics</div></td>
+              <td class="px-3 py-3 text-right num">2</td><td class="px-3 py-3 text-right num">2</td><td class="px-3 py-3 text-right num text-ink-200">0</td>
+              <td class="px-3 py-3 text-right num text-emerald-400">+12</td>
+              <td class="px-5 py-3 text-right num text-lg font-extrabold">6</td>
+            </tr>
+            <tr>
+              <td class="px-5 py-3"><span class="inline-flex items-center justify-center w-7 h-7 rounded-md text-xs font-bold bg-white/5">2</span></td>
+              <td class="px-5 py-3"><div class="flex items-center gap-3 font-bold"><span class="team-logo dark-bg logo-sm"><img src="team-logos/ninjas.png" alt=""></span>Net Ninjas</div></td>
+              <td class="px-3 py-3 text-right num">2</td><td class="px-3 py-3 text-right num">1</td><td class="px-3 py-3 text-right num text-ink-200">1</td>
+              <td class="px-3 py-3 text-right num text-emerald-400">+3</td>
+              <td class="px-5 py-3 text-right num text-lg font-extrabold">3</td>
+            </tr>
+            <tr>
+              <td class="px-5 py-3"><span class="inline-flex items-center justify-center w-7 h-7 rounded-md text-xs font-bold bg-white/5">3</span></td>
+              <td class="px-5 py-3"><div class="flex items-center gap-3 font-bold"><span class="team-logo dark-bg logo-sm"><img src="team-logos/fireballs.png" alt=""></span>GTA Fireballs</div></td>
+              <td class="px-3 py-3 text-right num">2</td><td class="px-3 py-3 text-right num">1</td><td class="px-3 py-3 text-right num text-ink-200">1</td>
+              <td class="px-3 py-3 text-right num">0</td>
+              <td class="px-5 py-3 text-right num text-lg font-extrabold">3</td>
+            </tr>
+            <tr>
+              <td class="px-5 py-3"><span class="inline-flex items-center justify-center w-7 h-7 rounded-md text-xs font-bold bg-white/5">4</span></td>
+              <td class="px-5 py-3"><div class="flex items-center gap-3 font-bold"><span class="team-wordmark logo-sm"><img src="team-logos/slayers-wide.png" alt=""></span>Sauga Slayers</div></td>
+              <td class="px-3 py-3 text-right num">2</td><td class="px-3 py-3 text-right num">1</td><td class="px-3 py-3 text-right num text-ink-200">1</td>
+              <td class="px-3 py-3 text-right num">0</td>
+              <td class="px-5 py-3 text-right num text-lg font-extrabold">3</td>
+            </tr>
+            <tr>
+              <td class="px-5 py-3"><span class="inline-flex items-center justify-center w-7 h-7 rounded-md text-xs font-bold bg-white/5">5</span></td>
+              <td class="px-5 py-3"><div class="flex items-center gap-3 font-bold"><span class="team-wordmark logo-sm"><img src="team-logos/strikers-wide.png" alt=""></span>Sauga Strikers</div></td>
+              <td class="px-3 py-3 text-right num">2</td><td class="px-3 py-3 text-right num">0</td><td class="px-3 py-3 text-right num text-ink-200">2</td>
+              <td class="px-3 py-3 text-right num text-rose-400">-7</td>
+              <td class="px-5 py-3 text-right num text-lg font-extrabold">0</td>
+            </tr>
+            <tr>
+              <td class="px-5 py-3"><span class="inline-flex items-center justify-center w-7 h-7 rounded-md text-xs font-bold bg-white/5">6</span></td>
+              <td class="px-5 py-3"><div class="flex items-center gap-3 font-bold"><span class="team-logo dark-bg logo-sm"><img src="team-logos/thunderbirds.png" alt=""></span>Thunderbirds</div></td>
+              <td class="px-3 py-3 text-right num">2</td><td class="px-3 py-3 text-right num">0</td><td class="px-3 py-3 text-right num text-ink-200">2</td>
+              <td class="px-3 py-3 text-right num text-rose-400">-8</td>
+              <td class="px-5 py-3 text-right num text-lg font-extrabold">0</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- ============= B · SCHEDULE ROWS (small icon next to team name) ============= -->
+    <section class="annotation mb-10" data-ann="B · SCHEDULE">
+      <div class="kicker mb-2">Match Day · 9 May</div>
+      <h2 class="display text-xl font-bold mb-3">Schedule</h2>
+      <div class="surface rounded-2xl overflow-hidden">
+        <table class="w-full text-sm">
+          <thead class="bg-ink-700/70 border-b border-white/5">
+            <tr class="text-[10px] uppercase tracking-[0.18em] text-ink-200">
+              <th class="text-left px-5 py-3 font-bold w-24">Time</th>
+              <th class="text-left px-5 py-3 font-bold">Court 1</th>
+              <th class="text-left px-5 py-3 font-bold w-24">Referee</th>
+              <th class="text-left px-5 py-3 font-bold">Court 2</th>
+              <th class="text-left px-5 py-3 font-bold w-24">Referee</th>
+              <th class="text-left px-5 py-3 font-bold w-32">Bye</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-white/5">
+            <tr>
+              <td class="px-5 py-4 align-top"><div class="num font-bold">8:30</div><div class="text-[10px] text-ink-300 num">9:15</div></td>
+              <td class="px-5 py-4">
+                <div class="space-y-1.5">
+                  <div class="font-semibold flex items-center gap-2"><span class="team-logo logo-xs"><img src="team-logos/sonics.png" alt=""></span>Super Sonics</div>
+                  <div class="font-semibold flex items-center gap-2"><span class="team-wordmark logo-xs"><img src="team-logos/strikers-wide.png" alt=""></span>Sauga Strikers</div>
+                </div>
+              </td>
+              <td class="px-5 py-4 text-ink-100 font-medium">Saaketh</td>
+              <td class="px-5 py-4">
+                <div class="space-y-1.5">
+                  <div class="font-semibold flex items-center gap-2"><span class="team-logo dark-bg logo-xs"><img src="team-logos/fireballs.png" alt=""></span>GTA Fireballs</div>
+                  <div class="font-semibold flex items-center gap-2"><span class="team-logo dark-bg logo-xs"><img src="team-logos/ninjas.png" alt=""></span>Net Ninjas</div>
+                </div>
+              </td>
+              <td class="px-5 py-4 text-ink-100 font-medium">Prathipan</td>
+              <td class="px-5 py-4">
+                <span class="pill-bye inline-flex items-center gap-1.5 px-2 py-1 rounded text-[11px] font-semibold">
+                  <span class="team-logo dark-bg logo-xs"><img src="team-logos/thunderbirds.png" alt=""></span>
+                  T'birds
+                </span>
+              </td>
+            </tr>
+            <tr>
+              <td class="px-5 py-4 align-top"><div class="num font-bold">9:20</div><div class="text-[10px] text-ink-300 num">10:05</div></td>
+              <td class="px-5 py-4">
+                <div class="space-y-1.5">
+                  <div class="font-semibold flex items-center gap-2"><span class="team-wordmark logo-xs"><img src="team-logos/slayers-wide.png" alt=""></span>Sauga Slayers</div>
+                  <div class="font-semibold flex items-center gap-2"><span class="team-logo dark-bg logo-xs"><img src="team-logos/ninjas.png" alt=""></span>Net Ninjas</div>
+                </div>
+              </td>
+              <td class="px-5 py-4 text-ink-100 font-medium">Deepak</td>
+              <td class="px-5 py-4">
+                <div class="space-y-1.5">
+                  <div class="font-semibold flex items-center gap-2"><span class="team-logo logo-xs"><img src="team-logos/sonics.png" alt=""></span>Super Sonics</div>
+                  <div class="font-semibold flex items-center gap-2"><span class="team-logo dark-bg logo-xs"><img src="team-logos/thunderbirds.png" alt=""></span>Thunderbirds</div>
+                </div>
+              </td>
+              <td class="px-5 py-4 text-ink-100 font-medium">Saaketh</td>
+              <td class="px-5 py-4">
+                <span class="pill-bye inline-flex items-center gap-1.5 px-2 py-1 rounded text-[11px] font-semibold">
+                  <span class="team-wordmark logo-xs"><img src="team-logos/strikers-wide.png" alt=""></span>
+                  Strikers
+                </span>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <p class="text-center text-[11px] text-ink-300 italic">
+      Mockup of placements <strong>A</strong> (full standings), <strong>B</strong> (schedule rows), <strong>D</strong> (mini-standings cards). Live site is not changed.
+    </p>
+
+  </main>
+</body>
+</html>

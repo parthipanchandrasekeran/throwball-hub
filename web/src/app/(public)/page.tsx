@@ -2,6 +2,7 @@ import { getSlots, getStandings, summarizeMatches } from '@/lib/data';
 import { formatTime } from '@/lib/format';
 import type { Match, Slot, Team } from '@/lib/types';
 import { ArcadeBlastBreakCard } from '@/components/ArcadeBlastBreakCard';
+import { TeamLogo } from '@/components/TeamLogo';
 
 // Always render fresh on each request. Necessary for live score updates:
 // Netlify's CDN cache doesn't reliably invalidate via revalidatePath for App
@@ -40,8 +41,9 @@ export default async function HomePage() {
                   <div className={`text-[10px] font-bold tracking-widest uppercase ${isFirst ? 'text-brand-gold' : 'text-ink-100'}`}>
                     {ordinal(rank)}
                   </div>
-                  <div className="mt-1 font-bold text-base flex items-center">
-                    <TeamDot color={row.color} />{row.name}
+                  <div className="mt-2 font-bold text-base flex items-center gap-2.5">
+                    <TeamLogo team={row} size="sm" />
+                    <span className="truncate">{row.name}</span>
                   </div>
                   <div className="mt-3 flex items-baseline gap-1">
                     <span className="num text-2xl font-extrabold">{row.points}</span>
@@ -264,10 +266,10 @@ function ScoreRow({ team, winner, sets, total }: {
   const numCls   = winner ? 'num text-center font-semibold text-ink-50' : 'num text-center text-ink-300';
   return (
     <div className="grid grid-cols-[1fr_repeat(4,28px)] gap-1 items-center text-[13px]">
-      <div className={`${labelCls} flex items-center min-w-0`}>
-        <TeamBar color={team.color} />
+      <div className={`${labelCls} flex items-center gap-2 min-w-0`}>
+        <TeamLogo team={team} size="xs" />
         <span className="truncate">{team.name}</span>
-        {winner && <span className="ml-1.5 text-brand-red">✓</span>}
+        {winner && <span className="ml-1 text-brand-red">✓</span>}
       </div>
       {sets.map((v, i) => (
         <div key={i} className={numCls}>{v ?? <span className="text-ink-400">—</span>}</div>
@@ -280,10 +282,15 @@ function ScoreRow({ team, winner, sets, total }: {
 function TeamLine({ team, winner, done }: { team: Team; winner: boolean; done: boolean }) {
   const cls = done
     ? winner
-      ? 'winner font-bold flex items-center'
-      : 'loser font-medium flex items-center line-through decoration-1'
-    : 'font-semibold flex items-center';
-  return <div className={cls}><TeamBar color={team.color} />{team.name}</div>;
+      ? 'winner font-bold flex items-center gap-2'
+      : 'loser font-medium flex items-center gap-2 line-through decoration-1'
+    : 'font-semibold flex items-center gap-2';
+  return (
+    <div className={cls}>
+      <TeamLogo team={team} size="xs" />
+      <span className="min-w-0 truncate">{team.name}</span>
+    </div>
+  );
 }
 
 function statusPill(slot: Slot) {
@@ -387,8 +394,8 @@ function MatchCardMobile({ slot, match }: { slot: Slot; match: Match }) {
 
       {!done ? (
         <>
-          <div className="flex items-center py-1.5 font-bold"><TeamBar color={match.team_a.color} />{match.team_a.name}</div>
-          <div className="flex items-center py-1.5 font-bold"><TeamBar color={match.team_b.color} />{match.team_b.name}</div>
+          <div className="flex items-center gap-2 py-1.5 font-bold"><TeamLogo team={match.team_a} size="xs" />{match.team_a.name}</div>
+          <div className="flex items-center gap-2 py-1.5 font-bold"><TeamLogo team={match.team_b} size="xs" />{match.team_b.name}</div>
         </>
       ) : (
         <ScoreGrid match={match} aWon={aWon} totalA={totalA} totalB={totalB} />

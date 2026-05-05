@@ -32,8 +32,8 @@ async function loadMatch(id: number): Promise<MatchRow | null> {
       score_a, score_b,
       set1_a, set1_b, set2_a, set2_b, set3_a, set3_b,
       status, stage, stage_label,
-      team_a:teams!team_a_id ( id, name, short_name, color ),
-      team_b:teams!team_b_id ( id, name, short_name, color ),
+      team_a:teams!team_a_id ( id, name, short_name, color, logo_url ),
+      team_b:teams!team_b_id ( id, name, short_name, color, logo_url ),
       referee:referees ( name ),
       slot:slots!slot_id ( start_time, end_time )
     `)
@@ -44,7 +44,7 @@ async function loadMatch(id: number): Promise<MatchRow | null> {
 }
 
 async function loadTeams(): Promise<Team[]> {
-  const { data } = await supabase.from('teams').select('id, name, short_name, color').order('display_order');
+  const { data } = await supabase.from('teams').select('id, name, short_name, color, logo_url').order('display_order');
   return (data ?? []) as Team[];
 }
 

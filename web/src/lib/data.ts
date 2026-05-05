@@ -8,7 +8,7 @@ const SLOT_QUERY = `
   end_time,
   kind,
   bye_label,
-  bye_team:teams!bye_team_id ( id, name, short_name, color ),
+  bye_team:teams!bye_team_id ( id, name, short_name, color, logo_url ),
   matches (
     id,
     court,
@@ -20,8 +20,8 @@ const SLOT_QUERY = `
     stage,
     stage_label,
     referee:referees ( name ),
-    team_a:teams!team_a_id ( id, name, short_name, color ),
-    team_b:teams!team_b_id ( id, name, short_name, color )
+    team_a:teams!team_a_id ( id, name, short_name, color, logo_url ),
+    team_b:teams!team_b_id ( id, name, short_name, color, logo_url )
   )
 `;
 

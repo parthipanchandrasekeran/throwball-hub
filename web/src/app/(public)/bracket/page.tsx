@@ -1,6 +1,7 @@
 import { getSlots, getStandings } from '@/lib/data';
 import { formatTime } from '@/lib/format';
 import type { Match, Slot } from '@/lib/types';
+import { TeamLogo } from '@/components/TeamLogo';
 
 // Always fresh — see comment in (public)/page.tsx.
 export const dynamic = 'force-dynamic';
@@ -34,15 +35,9 @@ export default async function BracketPage() {
             <div className={`text-[10px] font-bold tracking-widest uppercase ${i === 0 ? 'text-brand-gold' : 'text-ink-100'}`}>
               Seed {i + 1}
             </div>
-            <div className="mt-1 font-bold flex items-center">
-              <span
-                className="team-dot"
-                style={{
-                  background: s.color,
-                  boxShadow: s.color.toLowerCase() === '#1f1f1f' ? '0 0 0 2px rgba(255,255,255,0.18)' : undefined,
-                }}
-              />
-              {s.name}
+            <div className="mt-2 font-bold flex items-center gap-2.5">
+              <TeamLogo team={s} size="sm" />
+              <span className="truncate">{s.name}</span>
             </div>
             <div className="text-[11px] text-ink-200 mt-1 num">{s.points} pts · {s.won}W·{s.lost}L</div>
           </div>
@@ -92,24 +87,14 @@ function BracketCard({ slot, match, highlight }: { slot: Slot; match: Match; hig
         <span>Court {match.court}</span>
       </div>
       {known ? (
-        <div className="space-y-1.5">
-          <div className="font-bold flex items-center">
-            <span
-              className="team-bar"
-              style={{
-                background: match.team_a!.color,
-                boxShadow: match.team_a!.color.toLowerCase() === '#1f1f1f' ? '0 0 0 2px rgba(255,255,255,0.18)' : undefined,
-              }}
-            />{match.team_a!.name}
+        <div className="space-y-2">
+          <div className="font-bold flex items-center gap-2">
+            <TeamLogo team={match.team_a!} size="xs" />
+            <span className="truncate">{match.team_a!.name}</span>
           </div>
-          <div className="font-bold flex items-center">
-            <span
-              className="team-bar"
-              style={{
-                background: match.team_b!.color,
-                boxShadow: match.team_b!.color.toLowerCase() === '#1f1f1f' ? '0 0 0 2px rgba(255,255,255,0.18)' : undefined,
-              }}
-            />{match.team_b!.name}
+          <div className="font-bold flex items-center gap-2">
+            <TeamLogo team={match.team_b!} size="xs" />
+            <span className="truncate">{match.team_b!.name}</span>
           </div>
         </div>
       ) : (

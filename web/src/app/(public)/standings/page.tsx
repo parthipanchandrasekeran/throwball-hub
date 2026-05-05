@@ -1,5 +1,6 @@
 import { getStandings } from '@/lib/data';
 import type { StandingsRow } from '@/lib/types';
+import { TeamLogo } from '@/components/TeamLogo';
 
 // Always fresh — see comment in (public)/page.tsx.
 export const dynamic = 'force-dynamic';
@@ -72,9 +73,9 @@ export default async function StandingsPage() {
                       </span>
                     </td>
                     <td className="px-4 py-4">
-                      <div className="flex items-center font-bold">
-                        <span className="team-dot" style={{ background: r.color, boxShadow: dotShadow(r.color) }} />
-                        {r.name}
+                      <div className="flex items-center gap-3 font-bold">
+                        <TeamLogo team={r} size="sm" />
+                        <span className="truncate">{r.name}</span>
                       </div>
                     </td>
                     <td className="px-3 py-4 text-right num text-base font-extrabold">{r.points}</td>
@@ -125,8 +126,8 @@ function MobileRow({ rank, row: r }: { rank: number; row: StandingsRow }) {
           {rank}
         </span>
         <div className="flex-1 min-w-0">
-          <div className="font-bold flex items-center text-[15px]">
-            <span className="team-dot shrink-0" style={{ background: r.color, boxShadow: dotShadow(r.color) }} />
+          <div className="font-bold flex items-center gap-2.5 text-[15px]">
+            <TeamLogo team={r} size="sm" />
             <span className="truncate">{r.name}</span>
           </div>
           <div className="num text-[11px] text-ink-200 mt-1 flex items-center gap-1.5 flex-wrap">
