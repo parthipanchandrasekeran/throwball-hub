@@ -1,8 +1,17 @@
+import Link from 'next/link';
 import { getSlots, getStandings, summarizeMatches } from '@/lib/data';
 import { formatTime } from '@/lib/format';
 import type { Match, Slot, Team } from '@/lib/types';
 import { ArcadeBlastBreakCard } from '@/components/ArcadeBlastBreakCard';
 import { TeamLogo } from '@/components/TeamLogo';
+
+type Filter = 'all' | 'done' | 'knockouts';
+
+function applyFilter(slots: Slot[], filter: Filter): Slot[] {
+  if (filter === 'done')      return slots.filter(s => s.matches.some(m => m.status === 'done'));
+  if (filter === 'knockouts') return slots.filter(s => s.matches.some(m => m.stage !== 'group'));
+  return slots;
+}
 
 // Always render fresh on each request. Necessary for live score updates:
 // Netlify's CDN cache doesn't reliably invalidate via revalidatePath for App
@@ -12,9 +21,18 @@ import { TeamLogo } from '@/components/TeamLogo';
 // always gets the latest data, and viewers see updates within ~600ms.
 export const dynamic = 'force-dynamic';
 
-export default async function HomePage() {
+export default async function HomePage({
+  searchParams,
+}: {
+  searchParams: Promise<{ filter?: string }>;
+}) {
+  const sp = await searchParams;
+  const filter: Filter =
+    sp.filter === 'done' || sp.filter === 'knockouts' ? sp.filter : 'all';
+
   const [slots, standings] = await Promise.all([getSlots(), getStandings()]);
   const summary = summarizeMatches(slots);
+  const visibleSlots = applyFilter(slots, filter);
 
   return (
     <>
@@ -59,53 +77,93 @@ export default async function HomePage() {
       </section>
 
       {/* SCHEDULE */}
-      <section>
+      <section id="schedule" className="scroll-mt-20">
         <div className="flex flex-wrap items-end justify-between gap-3 mb-5">
           <div>
             <div className="kicker mb-2">Match Day · 9 May</div>
             <h2 className="display text-2xl sm:text-3xl font-bold">Schedule</h2>
           </div>
           <div className="flex items-center gap-2">
-            <button className="chip-on px-3.5 py-2 rounded-full font-semibold text-xs">All</button>
-            <button className="chip   px-3.5 py-2 rounded-full font-semibold text-xs">Today</button>
-            <button className="chip   px-3.5 py-2 rounded-full font-semibold text-xs">Done</button>
-            <button className="chip   px-3.5 py-2 rounded-full font-semibold text-xs">Knockouts</button>
+            <FilterChip current={filter} value="all"       label="All"        />
+            <FilterChip current={filter} value="done"      label="Done"       />
+            <FilterChip current={filter} value="knockouts" label="Knockouts"  />
           </div>
         </div>
 
-        {/* DESKTOP TABLE */}
-        <div className="hidden md:block surface rounded-2xl overflow-hidden shadow-card">
-          <table className="match-table w-full text-sm">
-            <thead className="bg-ink-700/70 border-b border-white/5">
-              <tr className="text-[10px] uppercase tracking-[0.18em] text-ink-200">
-                <th className="text-left px-5 py-3.5 font-bold w-28">Time</th>
-                <th className="text-left px-5 py-3.5 font-bold">Court 1</th>
-                <th className="text-left px-5 py-3.5 font-bold w-28">Referee</th>
-                <th className="text-left px-5 py-3.5 font-bold">Court 2</th>
-                <th className="text-left px-5 py-3.5 font-bold w-28">Referee</th>
-                <th className="text-left px-5 py-3.5 font-bold w-32">Bye</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-white/5">
-              {slots.map((slot, i) => (
-                <SlotRow key={slot.id} slot={slot} prevSlot={i > 0 ? slots[i - 1] : null} />
-              ))}
-            </tbody>
-          </table>
-        </div>
+        {/* EMPTY STATE — when a filter returns no slots */}
+        {visibleSlots.length === 0 && (
+          <div className="surface rounded-2xl px-6 py-12 text-center text-ink-200">
+            {filter === 'done' ? (
+              <>
+                <div className="text-base font-semibold">No matches completed yet</div>
+                <div className="text-sm text-ink-300 mt-1">Scores will appear here as soon as the first match wraps up.</div>
+              </>
+            ) : (
+              <>
+                <div className="text-base font-semibold">Nothing to show for this filter</div>
+                <div className="mt-3"><FilterChip current={filter} value="all" label="Show everything" /></div>
+              </>
+            )}
+          </div>
+        )}
 
-        {/* MOBILE CARDS */}
-        <div className="md:hidden space-y-3">
-          {slots.map((slot, i) => (
-            <SlotMobile key={slot.id} slot={slot} prevSlot={i > 0 ? slots[i - 1] : null} />
-          ))}
-        </div>
+        {visibleSlots.length > 0 && (
+          <>
+            {/* DESKTOP TABLE */}
+            <div className="hidden md:block surface rounded-2xl overflow-hidden shadow-card">
+              <table className="match-table w-full text-sm">
+                <thead className="bg-ink-700/70 border-b border-white/5">
+                  <tr className="text-[10px] uppercase tracking-[0.18em] text-ink-200">
+                    <th className="text-left px-5 py-3.5 font-bold w-28">Time</th>
+                    <th className="text-left px-5 py-3.5 font-bold">Court 1</th>
+                    <th className="text-left px-5 py-3.5 font-bold w-28">Referee</th>
+                    <th className="text-left px-5 py-3.5 font-bold">Court 2</th>
+                    <th className="text-left px-5 py-3.5 font-bold w-28">Referee</th>
+                    <th className="text-left px-5 py-3.5 font-bold w-32">Bye</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-white/5">
+                  {visibleSlots.map((slot, i) => (
+                    <SlotRow key={slot.id} slot={slot} prevSlot={i > 0 ? visibleSlots[i - 1] : null} />
+                  ))}
+                </tbody>
+              </table>
+            </div>
+
+            {/* MOBILE CARDS */}
+            <div className="md:hidden space-y-3">
+              {visibleSlots.map((slot, i) => (
+                <SlotMobile key={slot.id} slot={slot} prevSlot={i > 0 ? visibleSlots[i - 1] : null} />
+              ))}
+            </div>
+          </>
+        )}
       </section>
     </>
   );
 }
 
 /* ----------------------- helpers + sub-components ----------------------- */
+
+function FilterChip({ current, value, label }: { current: Filter; value: Filter; label: string }) {
+  const active = current === value;
+  // Default chip targets "/" with no query so the URL stays clean for the common case.
+  const href = value === 'all' ? '/#schedule' : `/?filter=${value}#schedule`;
+  return (
+    <Link
+      href={href}
+      aria-current={active ? 'page' : undefined}
+      scroll={false}
+      className={
+        active
+          ? 'chip-on px-3.5 py-2 rounded-full font-semibold text-xs'
+          : 'chip px-3.5 py-2 rounded-full font-semibold text-xs'
+      }
+    >
+      {label}
+    </Link>
+  );
+}
 
 function ordinal(n: number) {
   const s = ['th', 'st', 'nd', 'rd'];
