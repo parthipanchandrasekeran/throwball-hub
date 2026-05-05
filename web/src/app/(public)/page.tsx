@@ -37,19 +37,17 @@ export default async function HomePage() {
             return (
               <div key={row.team_id} className="surface surface-hover relative overflow-hidden rounded-xl p-4 shadow-card">
                 <div className={`rank-bg ${isFirst ? 'rank-bg-gold' : ''}`}>{String(rank).padStart(2, '0')}</div>
-                <div className="relative">
-                  <div className={`text-[10px] font-bold tracking-widest uppercase ${isFirst ? 'text-brand-gold' : 'text-ink-100'}`}>
+                <div className="relative flex flex-col items-center text-center">
+                  <TeamLogo team={row} size="md" />
+                  <div className={`mt-3 text-[10px] font-bold tracking-widest uppercase ${isFirst ? 'text-brand-gold' : 'text-ink-100'}`}>
                     {ordinal(rank)}
                   </div>
-                  <div className="mt-2 font-bold text-base flex items-center gap-2.5">
-                    <TeamLogo team={row} size="sm" />
-                    <span className="truncate">{row.name}</span>
-                  </div>
-                  <div className="mt-3 flex items-baseline gap-1">
+                  <div className="mt-1 font-bold text-sm w-full truncate">{row.name}</div>
+                  <div className="mt-2 flex items-baseline gap-1">
                     <span className="num text-2xl font-extrabold">{row.points}</span>
                     <span className="text-[10px] uppercase tracking-wider text-ink-300 font-semibold">pts</span>
                   </div>
-                  <div className="text-[11px] text-ink-200 mt-1 num">{row.won}W · {row.lost}L</div>
+                  <div className="text-[11px] text-ink-200 mt-0.5 num">{row.won}W · {row.lost}L</div>
                 </div>
               </div>
             );
