@@ -8,7 +8,7 @@ const TARGET_MS = Date.UTC(2026, 4, 9, 12, 30, 0); // 12:30 UTC == 8:30 EDT
 function pad(n: number) { return n.toString().padStart(2, '0'); }
 
 export function Countdown() {
-  const [now, setNow] = useState<number | null>(null);
+  const [now, setNow] = useState(() => Date.now());
 
   useEffect(() => {
     const tick = () => setNow(Date.now());
@@ -16,15 +16,6 @@ export function Countdown() {
     const t = setInterval(tick, 1000);
     return () => clearInterval(t);
   }, []);
-
-  if (now === null) {
-    // SSR placeholder; same height so no layout shift on hydration
-    return (
-      <div className="mt-5 sm:mt-6 inline-flex items-center gap-3 px-3.5 py-2 rounded-md surface text-xs text-ink-300 invisible" aria-hidden>
-        Tournament starts in&nbsp; 0d 00h 00m 00s
-      </div>
-    );
-  }
 
   const ms = TARGET_MS - now;
 

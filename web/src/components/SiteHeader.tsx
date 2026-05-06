@@ -1,5 +1,6 @@
 import Image from 'next/image';
 import { NavLinks } from '@/components/NavLinks';
+import { Countdown } from '@/components/Countdown';
 import { playStoreUrl } from '@/lib/arcadeblast';
 
 export function SiteHeader() {
@@ -66,6 +67,8 @@ export function SiteHeader() {
                 <Divider />
                 <Stat label="Courts"  value="02" />
               </dl>
+
+              <Countdown />
             </div>
 
           </div>
