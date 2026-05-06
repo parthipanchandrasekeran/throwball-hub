@@ -8,6 +8,7 @@ export const revalidate = 0;
 export default async function AdminDashboard() {
   const slots = await getSlots();
   const summary = summarizeMatches(slots);
+  const progress = percent(summary.done, summary.total);
 
   // Flatten to a list of matches with their slot, sorted by display order then court.
   const rows: { slot: Slot; match: Match }[] = [];
@@ -20,17 +21,35 @@ export default async function AdminDashboard() {
       {/* Header */}
       <div className="mb-6 sm:mb-8">
         <div className="kicker mb-2">Match Day · 9 May</div>
-        <h1 className="display text-2xl sm:text-3xl font-bold">All matches</h1>
+        <h1 className="display text-2xl sm:text-3xl font-bold">Control room</h1>
         <p className="text-ink-200 text-sm mt-2 max-w-xl">
           Pick a match and enter the final score. Group standings and the bracket update automatically.
         </p>
       </div>
 
-      {/* Summary strip */}
-      <div className="surface rounded-xl px-4 sm:px-5 py-3 mb-5 grid grid-cols-3 gap-4 sm:flex sm:items-center sm:gap-6 w-full sm:w-auto sm:inline-flex">
-        <Stat label="Total" value={summary.total} />
-        <Stat label="Done"  value={summary.done} accent="red" />
-        <Stat label="Group" value={`${summary.groupDone}/${summary.groupTotal}`} />
+      {/* Command center */}
+      <div className="pulse-panel rounded-lg p-5 sm:p-6 mb-5 shadow-card">
+        <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-5">
+          <div>
+            <div className="text-[10px] uppercase tracking-widest text-ink-300 font-semibold mb-2">Tournament Operations</div>
+            <div className="display text-xl sm:text-2xl font-bold">Score entry status</div>
+            <div className="mt-2 text-sm text-ink-200">
+              {summary.done === summary.total ? 'All results are in.' : `${summary.total - summary.done} matches still need attention.`}
+            </div>
+          </div>
+          <div className="grid grid-cols-3 gap-3 sm:gap-5">
+            <Stat label="Total" value={summary.total} />
+            <Stat label="Done" value={summary.done} accent="red" />
+            <Stat label="Group" value={`${summary.groupDone}/${summary.groupTotal}`} />
+          </div>
+        </div>
+        <div className="mt-5 progress-track">
+          <div className="progress-fill" style={{ width: `${progress}%` }} />
+        </div>
+        <div className="mt-2 flex items-center justify-between text-[11px] text-ink-300">
+          <span className="font-semibold uppercase tracking-widest">Completion</span>
+          <span className="num font-bold text-ink-50">{progress}%</span>
+        </div>
       </div>
 
       {/* MOBILE: stacked cards */}
@@ -42,7 +61,7 @@ export default async function AdminDashboard() {
             <Link
               key={match.id}
               href={`/admin/result/${match.id}`}
-              className="tap block surface rounded-xl p-4 active:bg-white/5 transition-colors"
+              className="tap block surface surface-hover rounded-lg p-4 active:bg-white/5 transition-colors shadow-card"
             >
               <div className="flex items-center justify-between gap-2 mb-2">
                 <div className="flex items-baseline gap-2 min-w-0">
@@ -93,7 +112,7 @@ export default async function AdminDashboard() {
       </div>
 
       {/* DESKTOP: full table */}
-      <div className="hidden md:block surface rounded-2xl overflow-hidden shadow-card">
+      <div className="hidden md:block surface rounded-lg overflow-hidden shadow-card">
         <table className="match-table w-full text-sm">
           <thead className="bg-ink-700/70 border-b border-white/5">
             <tr className="text-[10px] uppercase tracking-[0.18em] text-ink-200">
@@ -145,7 +164,7 @@ export default async function AdminDashboard() {
                   <td className="px-4 py-3 text-right">
                     <Link
                       href={`/admin/result/${match.id}`}
-                      className="inline-block bg-white text-ink-900 hover:bg-ink-100 transition-colors font-semibold px-3 py-1.5 rounded-md text-xs"
+                      className="inline-block btn-primary font-semibold px-3 py-1.5 rounded-md text-xs"
                     >
                       {done ? 'Edit result' : known ? 'Enter result' : 'Set teams'}
                     </Link>
@@ -169,11 +188,16 @@ function Stat({ label, value, accent }: { label: string; value: string | number;
   );
 }
 
+function percent(value: number, total: number) {
+  if (total <= 0) return 0;
+  return Math.round((value / total) * 100);
+}
+
 function stageLabel(stage: string) {
   if (stage === 'group') return 'Group';
   if (stage === 'sf')    return 'Semi';
   if (stage === 'final') return 'Final';
-  if (stage === 'third_place') return '3rd';
+  if (stage === 'third_place') return 'Placement';
   return stage;
 }
 

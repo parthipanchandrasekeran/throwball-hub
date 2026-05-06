@@ -9,7 +9,7 @@ export default function PublicLayout({ children }: { children: React.ReactNode }
     <Background>
       <RealtimeMatches />
       <SiteHeader />
-      <main className="max-w-7xl mx-auto w-full px-4 sm:px-6 py-10 sm:py-14 relative flex-1">
+      <main className="max-w-7xl mx-auto w-full px-3 sm:px-6 py-6 sm:py-12 relative flex-1">
         {children}
       </main>
       <SiteFooter />

@@ -26,8 +26,9 @@ export default async function LoginPage({
   if (session) redirect(sp.next || '/admin');
 
   return (
-    <div className="min-h-screen flex items-center justify-center px-4 py-12">
-      <form action={loginAction} className="w-full max-w-sm surface rounded-2xl p-8 shadow-card">
+    <div className="min-h-screen bg-stage relative flex items-center justify-center px-4 py-12 overflow-hidden">
+      <div className="absolute inset-0 grid-overlay pointer-events-none" />
+      <form action={loginAction} className="relative w-full max-w-sm surface rounded-lg p-8 shadow-card">
         <div className="flex items-center gap-3 mb-6">
           <Image src="/tfc-logo.png" alt="TFC" width={48} height={48} className="w-12 h-12" />
           <div>
@@ -51,7 +52,7 @@ export default async function LoginPage({
             autoComplete="username"
             required
             autoFocus
-            className="mt-1 w-full bg-ink-700/60 border border-white/10 rounded-lg px-3 py-2 text-sm focus:border-brand-red focus:outline-none focus:ring-2 focus:ring-brand-red/30"
+            className="field mt-1 w-full rounded-md px-3 py-2.5 text-sm"
           />
         </label>
 
@@ -62,13 +63,13 @@ export default async function LoginPage({
             type="password"
             autoComplete="current-password"
             required
-            className="mt-1 w-full bg-ink-700/60 border border-white/10 rounded-lg px-3 py-2 text-sm focus:border-brand-red focus:outline-none focus:ring-2 focus:ring-brand-red/30"
+            className="field mt-1 w-full rounded-md px-3 py-2.5 text-sm"
           />
         </label>
 
         <button
           type="submit"
-          className="w-full bg-brand-red hover:bg-brand-redDk transition-colors text-white font-bold py-2.5 rounded-lg text-sm"
+          className="btn-primary w-full font-bold py-2.5 rounded-md text-sm"
         >
           Sign in
         </button>

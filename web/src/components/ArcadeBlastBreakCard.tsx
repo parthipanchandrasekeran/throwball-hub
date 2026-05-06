@@ -16,7 +16,7 @@ export function ArcadeBlastBreakCard({
       target="_blank"
       rel="noopener sponsored"
       aria-label="Get ArcadeBlast on Google Play"
-      className="ab-break group block rounded-xl px-4 sm:px-5 py-4 transition-transform active:scale-[0.998] sm:hover:scale-[1.005]"
+      className="ab-break group block rounded-lg px-4 sm:px-5 py-4 transition-transform active:scale-[0.998] sm:hover:scale-[1.005]"
     >
       <div className="flex items-center gap-3 sm:gap-5">
         <Image
@@ -24,7 +24,7 @@ export function ArcadeBlastBreakCard({
           alt=""
           width={64}
           height={64}
-          className="w-12 h-12 sm:w-16 sm:h-16 rounded-xl shrink-0"
+          className="w-12 h-12 sm:w-16 sm:h-16 rounded-lg shrink-0"
         />
         <div className="flex-1 min-w-0">
           <div className="flex flex-wrap items-baseline gap-x-2 gap-y-0.5 mb-1">

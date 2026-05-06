@@ -7,7 +7,7 @@ export function formatTime(t: string): string {
 export const stageLabel: Record<string, string> = {
   sf: 'Semi-final',
   final: 'Final',
-  third_place: '3rd Place',
+  third_place: 'Placement Match',
 };
 
 /**

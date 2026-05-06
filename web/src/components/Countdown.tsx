@@ -20,7 +20,7 @@ export function Countdown() {
   if (now === null) {
     // SSR placeholder; same height so no layout shift on hydration
     return (
-      <div className="mt-5 sm:mt-6 inline-flex items-center gap-3 px-3.5 py-2 rounded-full surface text-xs text-ink-300 invisible" aria-hidden>
+      <div className="mt-5 sm:mt-6 inline-flex items-center gap-3 px-3.5 py-2 rounded-md surface text-xs text-ink-300 invisible" aria-hidden>
         Tournament starts in&nbsp; 0d 00h 00m 00s
       </div>
     );
@@ -30,7 +30,7 @@ export function Countdown() {
 
   if (ms <= 0) {
     return (
-      <div className="mt-5 sm:mt-6 inline-flex items-center gap-2 px-3.5 py-2 rounded-full pill-final text-xs font-bold uppercase tracking-widest">
+      <div className="mt-5 sm:mt-6 inline-flex items-center gap-2 px-3.5 py-2 rounded-md pill-final text-xs font-bold uppercase tracking-widest">
         <span className="kicker !text-current after:hidden">Tournament Live</span>
       </div>
     );
@@ -43,7 +43,7 @@ export function Countdown() {
   const secs  = sec % 60;
 
   return (
-    <div className="mt-5 sm:mt-6 inline-flex items-center gap-3 px-3.5 py-2 rounded-full surface text-xs">
+    <div className="mt-5 sm:mt-6 inline-flex items-center gap-3 px-3.5 py-2 rounded-md surface text-xs shadow-card">
       <span className="text-[10px] uppercase tracking-widest text-ink-300 font-semibold">
         Tournament starts in
       </span>

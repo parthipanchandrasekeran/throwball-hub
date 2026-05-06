@@ -23,15 +23,25 @@ export default async function BracketPage() {
         <div className="kicker mb-2">Knockout Stage</div>
         <h2 className="display text-3xl sm:text-4xl font-bold">Bracket</h2>
         <p className="text-ink-200 text-sm mt-2 max-w-xl">
-          Top 4 group-stage seeds advance. Semi-finals play first; winners contest the gold,
-          losers play for bronze.
+          Top 4 group-stage seeds advance. Semi-finals play first; winners move into the final,
+          while the other teams play a placement match.
         </p>
+      </div>
+
+      <div className="pulse-panel rounded-lg p-5 sm:p-6 mb-6 shadow-card">
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 items-center">
+          <BracketMetric label="Semi-finals" value={sf.length} />
+          <BracketMetric label="Final Round" value={(fin ? 1 : 0) + (trd ? 1 : 0)} accent />
+          <div className="text-sm text-ink-200">
+            The bracket locks in from the group table, then updates as results are entered.
+          </div>
+        </div>
       </div>
 
       {/* Seeds */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-10">
         {seeds.length > 0 ? seeds.map((s, i) => (
-          <div key={s.team_id} className="surface rounded-xl p-4">
+          <div key={s.team_id} className="surface surface-hover rounded-lg p-4 shadow-card">
             <div className={`text-[10px] font-bold tracking-widest uppercase ${i === 0 ? 'text-brand-gold' : 'text-ink-100'}`}>
               Seed {i + 1}
             </div>
@@ -42,7 +52,7 @@ export default async function BracketPage() {
             <div className="text-[11px] text-ink-200 mt-1 num">{s.points} pts · {s.won}W·{s.lost}L</div>
           </div>
         )) : (
-          <div className="col-span-2 sm:col-span-4 text-center text-ink-300 italic py-8 surface rounded-xl">
+          <div className="col-span-2 sm:col-span-4 text-center text-ink-300 italic py-8 surface rounded-lg shadow-card">
             Seeds will appear once the group stage completes.
           </div>
         )}
@@ -50,15 +60,15 @@ export default async function BracketPage() {
 
       {/* Bracket */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <Column title="Semi-finals" tone="gold">
+        <Column title="Semi-finals" tone="standard">
           {sf.map(({ slot, match }) => (
             <BracketCard key={match.id} slot={slot} match={match} />
           ))}
         </Column>
-        <Column title="Final" tone="champion">
+        <Column title="Final" tone="final">
           {fin && <BracketCard slot={fin.slot} match={fin.match} highlight />}
         </Column>
-        <Column title="3rd Place" tone="bronze">
+        <Column title="Placement Match" tone="standard">
           {trd && <BracketCard slot={trd.slot} match={trd.match} />}
         </Column>
       </div>
@@ -66,8 +76,8 @@ export default async function BracketPage() {
   );
 }
 
-function Column({ title, tone, children }: { title: string; tone: 'gold' | 'champion' | 'bronze'; children: React.ReactNode }) {
-  const heading = tone === 'champion' ? 'gold-text' : 'text-brand-gold';
+function Column({ title, tone, children }: { title: string; tone: 'gold' | 'champion' | 'bronze' | 'standard' | 'final'; children: React.ReactNode }) {
+  const heading = tone === 'final' ? 'text-ink-50' : 'text-brand-gold';
   return (
     <div className="space-y-3">
       <div className={`text-[10px] uppercase tracking-[0.2em] font-extrabold ${heading}`}>
@@ -78,10 +88,19 @@ function Column({ title, tone, children }: { title: string; tone: 'gold' | 'cham
   );
 }
 
+function BracketMetric({ label, value, accent }: { label: string; value: number; accent?: boolean }) {
+  return (
+    <div>
+      <div className={`num text-4xl font-extrabold leading-none ${accent ? 'text-brand-gold' : 'text-ink-50'}`}>{value}</div>
+      <div className="mt-1 text-[10px] uppercase tracking-widest text-ink-300 font-semibold">{label}</div>
+    </div>
+  );
+}
+
 function BracketCard({ slot, match, highlight }: { slot: Slot; match: Match; highlight?: boolean }) {
   const known = match.team_a && match.team_b;
   return (
-    <div className={`surface rounded-xl p-4 ${highlight ? 'shadow-card' : ''}`}>
+    <div className={`surface surface-hover rounded-lg p-4 ${highlight ? 'shadow-card border-brand-gold/25' : 'shadow-card'}`}>
       <div className="flex items-center justify-between mb-2 text-[10px] text-ink-300 uppercase tracking-wider">
         <span className="num">{formatTime(slot.start_time)}</span>
         <span>Court {match.court}</span>

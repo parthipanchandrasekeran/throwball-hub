@@ -14,8 +14,9 @@ export default async function AdminLayout({ children }: { children: React.ReactN
   if (!session) return <>{children}</>;
 
   return (
-    <div className="min-h-screen flex flex-col">
-      <div className="border-b border-white/10 bg-ink-800/80 backdrop-blur-sm sticky top-0 z-20">
+    <div className="min-h-screen flex flex-col bg-stage relative overflow-hidden">
+      <div className="absolute inset-0 grid-overlay pointer-events-none" />
+      <div className="relative border-b border-white/10 bg-ink-800/75 backdrop-blur-md sticky top-0 z-20">
         <div className="max-w-6xl mx-auto px-3 sm:px-6 py-2.5 sm:py-3 flex items-center justify-between gap-3">
           <Link href="/admin" className="flex items-center gap-2 sm:gap-3 min-w-0">
             <Image src="/tfc-logo.png" alt="" width={32} height={32} className="w-7 h-7 sm:w-8 sm:h-8 shrink-0" />
@@ -39,7 +40,7 @@ export default async function AdminLayout({ children }: { children: React.ReactN
           </div>
         </div>
       </div>
-      <div className="flex-1">{children}</div>
+      <div className="relative flex-1">{children}</div>
     </div>
   );
 }

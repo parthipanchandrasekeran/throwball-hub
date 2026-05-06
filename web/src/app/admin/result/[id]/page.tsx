@@ -4,6 +4,7 @@ import { revalidatePath } from 'next/cache';
 import { supabase } from '@/lib/supabase';
 import { formatTime, setBreakdown } from '@/lib/format';
 import type { Team } from '@/lib/types';
+import { TeamLogo } from '@/components/TeamLogo';
 
 export const revalidate = 0;
 
@@ -166,9 +167,30 @@ export default async function ResultPage({
         </div>
       )}
 
+      {known && (
+        <div className="scoreboard-panel surface rounded-lg p-4 sm:p-5 mb-5 shadow-card">
+          <div className="grid grid-cols-[1fr_auto_1fr] gap-3 sm:gap-5 items-center">
+            <ScoreTeam team={match.team_a!} score={match.score_a} done={done} align="left" />
+            <div className="text-center">
+              <div className="num text-ink-300 text-xs font-bold uppercase tracking-widest">Court {match.court}</div>
+              <div className="display text-2xl sm:text-3xl font-bold text-ink-100 leading-none mt-1">VS</div>
+              <div className={`mt-2 inline-block px-2 py-0.5 rounded text-[9px] font-bold tracking-wider uppercase ${done ? 'pill-final' : 'pill-sched'}`}>
+                {done ? 'Final' : 'Scheduled'}
+              </div>
+            </div>
+            <ScoreTeam team={match.team_b!} score={match.score_b} done={done} align="right" />
+          </div>
+          {done && setBreakdown(match) && (
+            <div className="mt-4 pt-3 border-t border-white/5 text-center num text-xs text-ink-300">
+              {setBreakdown(match)}
+            </div>
+          )}
+        </div>
+      )}
+
       {/* TEAM ASSIGNMENT (knockouts, before teams set) */}
       {isKnockout && !known && (
-        <form action={assignTeams} className="surface rounded-2xl p-5 sm:p-6 mb-5 shadow-card">
+        <form action={assignTeams} className="surface rounded-lg p-5 sm:p-6 mb-5 shadow-card">
           <input type="hidden" name="id" value={match.id} />
           <h2 className="text-sm font-bold uppercase tracking-widest text-brand-gold mb-1">Step 1 · Assign teams</h2>
           <p className="text-xs text-ink-300 mb-5">Once group standings are settled, pick the two teams playing this knockout match.</p>
@@ -176,7 +198,7 @@ export default async function ResultPage({
             <TeamSelect name="team_a_id" label="Team A" teams={teams} />
             <TeamSelect name="team_b_id" label="Team B" teams={teams} />
           </div>
-          <button type="submit" className="mt-6 w-full sm:w-auto bg-brand-gold hover:bg-brand-goldLt transition-colors text-ink-900 font-bold py-3 sm:py-2.5 px-5 rounded-lg text-sm">
+          <button type="submit" className="mt-6 w-full sm:w-auto btn-gold font-bold py-3 sm:py-2.5 px-5 rounded-md text-sm">
             Save teams
           </button>
         </form>
@@ -184,7 +206,7 @@ export default async function ResultPage({
 
       {/* SCORE ENTRY (best-of-3 sets) */}
       {known && (
-        <form action={saveScore} className="surface rounded-2xl p-5 sm:p-6 shadow-card">
+        <form action={saveScore} className="surface rounded-lg p-5 sm:p-6 shadow-card">
           <input type="hidden" name="id" value={match.id} />
 
           <div className="flex items-baseline justify-between mb-4">
@@ -222,7 +244,7 @@ export default async function ResultPage({
 
           <div className="mt-6 flex flex-col-reverse sm:flex-row items-stretch sm:items-center gap-2 sm:gap-3">
             <Link href="/admin" className="chip text-center px-4 py-3 sm:py-2 rounded-md font-semibold text-sm">Cancel</Link>
-            <button type="submit" className="flex-1 sm:flex-none bg-brand-red hover:bg-brand-redDk transition-colors text-white font-bold py-3 sm:py-2.5 px-5 rounded-lg text-sm">
+            <button type="submit" className="flex-1 sm:flex-none btn-primary font-bold py-3 sm:py-2.5 px-5 rounded-md text-sm">
               {done ? 'Update result' : 'Save result'}
             </button>
           </div>
@@ -268,6 +290,29 @@ function TeamRow({
   );
 }
 
+function ScoreTeam({
+  team,
+  score,
+  done,
+  align,
+}: {
+  team: Team;
+  score: number | null;
+  done: boolean;
+  align: 'left' | 'right';
+}) {
+  return (
+    <div className={`min-w-0 flex flex-col ${align === 'right' ? 'items-end text-right' : 'items-start text-left'}`}>
+      <TeamLogo team={team} size="md" />
+      <div className="mt-2 font-bold text-sm sm:text-base w-full truncate">{team.name}</div>
+      <div className="mt-2 num text-4xl sm:text-5xl font-extrabold leading-none">
+        {done ? score : <span className="text-ink-400">0</span>}
+      </div>
+      <div className="mt-1 text-[10px] uppercase tracking-widest text-ink-300 font-semibold">Sets</div>
+    </div>
+  );
+}
+
 function SetInput({
   name, defaultValue, mobileLabel, optional,
 }: { name: string; defaultValue: number | null; mobileLabel: string; optional?: boolean }) {
@@ -285,7 +330,7 @@ function SetInput({
         max={50}
         defaultValue={defaultValue ?? ''}
         placeholder={optional ? '—' : '0'}
-        className="w-full bg-ink-700/60 border border-white/10 rounded-lg px-2 py-3 sm:py-2.5 text-xl sm:text-lg font-mono font-bold text-center focus:border-brand-red focus:outline-none focus:ring-2 focus:ring-brand-red/30"
+        className="field w-full rounded-md px-2 py-3 sm:py-2.5 text-xl sm:text-lg font-mono font-bold text-center"
       />
     </label>
   );
@@ -299,7 +344,7 @@ function TeamSelect({ name, label, teams }: { name: string; label: string; teams
         name={name}
         required
         defaultValue=""
-        className="mt-1 w-full bg-ink-700/60 border border-white/10 rounded-lg px-3 py-2 text-sm focus:border-brand-gold focus:outline-none focus:ring-2 focus:ring-brand-gold/30"
+        className="field field-gold mt-1 w-full rounded-md px-3 py-2.5 text-sm"
       >
         <option value="" disabled>Select a team…</option>
         {teams.map(t => <option key={t.id} value={t.id}>{t.name}</option>)}

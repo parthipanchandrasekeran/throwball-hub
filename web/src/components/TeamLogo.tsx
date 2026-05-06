@@ -4,7 +4,7 @@ import type { Team } from '@/lib/types';
 type Size = 'xs' | 'sm' | 'md' | 'lg';
 
 const SIZE_PX: Record<Size, number> = { xs: 32, sm: 44, md: 64, lg: 80 };
-const RADIUS:  Record<Size, string> = { xs: 'rounded-md', sm: 'rounded-lg', md: 'rounded-lg', lg: 'rounded-xl' };
+const RADIUS:  Record<Size, string> = { xs: 'rounded-md', sm: 'rounded-md', md: 'rounded-lg', lg: 'rounded-lg' };
 
 const isDarkColor = (c: string) => c.toLowerCase() === '#1f1f1f';
 

@@ -37,13 +37,19 @@ export default async function StandingsPage() {
         </p>
       </div>
 
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-6">
+        <Snapshot label="Current Leader" row={rows[0]} rank={1} gold />
+        <Snapshot label="Qualification Cut" row={rows[3]} rank={4} />
+        <Snapshot label="First Chaser" row={rows[4]} rank={5} muted />
+      </div>
+
       {/* MOBILE: stacked cards */}
       <div className="md:hidden space-y-2">
         {rows.map((r, i) => <MobileRow key={r.team_id} rank={i + 1} row={r} />)}
       </div>
 
       {/* DESKTOP: full table */}
-      <div className="hidden md:block surface rounded-2xl overflow-hidden shadow-card">
+      <div className="hidden md:block surface rounded-lg overflow-hidden shadow-card">
         <div className="overflow-x-auto">
           <table className="match-table w-full text-sm min-w-[760px]">
             <thead className="bg-ink-700/70 border-b border-white/5">
@@ -101,7 +107,7 @@ export default async function StandingsPage() {
           <span className="inline-block w-2 h-2 rounded-sm bg-emerald-500/60 align-middle mr-2" />
           Top 4 advance to knockout bracket
         </div>
-        <div className="surface rounded-xl p-4">
+        <div className="surface rounded-lg p-4 shadow-card">
           <div className="text-[10px] uppercase tracking-widest text-ink-300 font-semibold mb-3">Legend</div>
           <dl className="grid grid-cols-2 sm:grid-cols-3 gap-x-6 gap-y-2 text-xs">
             {LEGEND.map(({ code, label }) => (
@@ -120,7 +126,7 @@ export default async function StandingsPage() {
 function MobileRow({ rank, row: r }: { rank: number; row: StandingsRow }) {
   const advances = rank <= 4;
   return (
-    <div className={`surface rounded-xl p-3.5 ${advances ? 'border-emerald-500/15' : ''}`}>
+    <div className={`surface rounded-lg p-3.5 shadow-card ${advances ? 'border-emerald-500/15' : ''}`}>
       <div className="flex items-center gap-3">
         <span className={`inline-flex items-center justify-center w-9 h-9 rounded-lg text-sm font-bold shrink-0 num ${rank === 1 ? 'bg-brand-gold/20 text-brand-gold' : 'bg-white/5 text-ink-100'}`}>
           {rank}
@@ -150,6 +156,43 @@ function MobileRow({ rank, row: r }: { rank: number; row: StandingsRow }) {
         <Cell label="PD" value={signed(r.diff)}      tone={trendClass(r.diff)} />
         <Cell label="EP" value={r.extra_points} />
       </div>
+    </div>
+  );
+}
+
+function Snapshot({
+  label,
+  row,
+  rank,
+  gold,
+  muted,
+}: {
+  label: string;
+  row?: StandingsRow;
+  rank: number;
+  gold?: boolean;
+  muted?: boolean;
+}) {
+  return (
+    <div className={`surface metric-card rounded-lg p-4 shadow-card ${muted ? 'opacity-80' : ''}`}>
+      <div className="text-[10px] uppercase tracking-widest text-ink-300 font-semibold">{label}</div>
+      {row ? (
+        <div className="relative mt-3 flex items-center justify-between gap-3">
+          <div className="min-w-0 flex items-center gap-3">
+            <TeamLogo team={row} size="sm" />
+            <div className="min-w-0">
+              <div className={`font-bold truncate ${gold ? 'text-brand-gold' : 'text-ink-50'}`}>{row.name}</div>
+              <div className="num text-[11px] text-ink-300">{row.won}W &middot; {row.lost}L</div>
+            </div>
+          </div>
+          <div className="text-right shrink-0">
+            <div className="num text-2xl font-extrabold">{row.points}</div>
+            <div className="text-[9px] uppercase tracking-widest text-ink-300 font-semibold">#{rank}</div>
+          </div>
+        </div>
+      ) : (
+        <div className="mt-3 text-sm text-ink-300">Waiting for results</div>
+      )}
     </div>
   );
 }

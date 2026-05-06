@@ -33,11 +33,46 @@ export default async function HomePage({
   const [slots, standings] = await Promise.all([getSlots(), getStandings()]);
   const summary = summarizeMatches(slots);
   const visibleSlots = applyFilter(slots, filter);
+  const progress = percent(summary.done, summary.total);
+  const groupProgress = percent(summary.groupDone, summary.groupTotal);
+  const knockoutMatches = slots.flatMap(s => s.matches).filter(m => m.stage !== 'group').length;
 
   return (
     <>
+      <div className="flex flex-col">
+      {/* TOURNAMENT PULSE */}
+      <section className="order-2 mb-7 sm:order-1 sm:mb-10">
+        <div className="grid grid-cols-1 lg:grid-cols-[1.35fr_1fr_1fr] gap-3">
+          <div className="pulse-panel rounded-lg p-5 sm:p-6 shadow-card">
+            <div className="flex flex-wrap items-start justify-between gap-4">
+              <div>
+                <div className="kicker mb-2">Tournament Pulse</div>
+                <h2 className="display text-2xl sm:text-3xl font-bold">Championship dashboard</h2>
+                <p className="mt-2 text-sm text-ink-200 max-w-xl">
+                  Live scores and schedule updates for players, officials, and supporters.
+                </p>
+              </div>
+              <div className="text-right">
+                <div className="num text-4xl font-extrabold leading-none">{progress}%</div>
+                <div className="mt-1 text-[10px] uppercase tracking-widest text-ink-300 font-semibold">Complete</div>
+              </div>
+            </div>
+            <div className="mt-5 progress-track">
+              <div className="progress-fill" style={{ width: `${progress}%` }} />
+            </div>
+            <div className="mt-3 flex flex-wrap gap-x-5 gap-y-2 text-[11px] text-ink-300">
+              <span><span className="num text-ink-50 font-bold">{summary.done}</span> of {summary.total} matches final</span>
+              <span><span className="num text-ink-50 font-bold">{summary.groupDone}</span> of {summary.groupTotal} group matches final</span>
+            </div>
+          </div>
+
+          <PulseMetric label="Group Progress" value={`${groupProgress}%`} note="Top 4 advance" />
+          <PulseMetric label="Knockout Matches" value={knockoutMatches} note="Semi-finals and final" gold />
+        </div>
+      </section>
+
       {/* MINI STANDINGS */}
-      <section className="mb-14">
+      <section className="order-3 mb-10 sm:order-2 sm:mb-14">
         <div className="flex items-end justify-between mb-5">
           <div>
             <div className="kicker mb-2">Group Stage</div>
@@ -53,7 +88,7 @@ export default async function HomePage({
             const rank = i + 1;
             const isFirst = rank === 1;
             return (
-              <div key={row.team_id} className="surface surface-hover relative overflow-hidden rounded-xl p-4 shadow-card">
+              <div key={row.team_id} className="surface surface-hover relative overflow-hidden rounded-lg p-4 shadow-card">
                 <div className={`rank-bg ${isFirst ? 'rank-bg-gold' : ''}`}>{String(rank).padStart(2, '0')}</div>
                 <div className="relative flex flex-col items-center text-center">
                   <TeamLogo team={row} size="md" />
@@ -77,13 +112,13 @@ export default async function HomePage({
       </section>
 
       {/* SCHEDULE */}
-      <section id="schedule" className="scroll-mt-20">
-        <div className="flex flex-wrap items-end justify-between gap-3 mb-5">
+      <section id="schedule" className="order-1 scroll-mt-20 mb-10 sm:order-3 sm:mb-0">
+        <div className="sticky top-[49px] z-20 -mx-3 mb-4 border-y border-white/5 bg-ink-900/88 px-3 py-3 backdrop-blur-md sm:static sm:mx-0 sm:mb-5 sm:border-0 sm:bg-transparent sm:px-0 sm:py-0 sm:backdrop-blur-0 flex flex-wrap items-end justify-between gap-3">
           <div>
             <div className="kicker mb-2">Match Day · 9 May</div>
             <h2 className="display text-2xl sm:text-3xl font-bold">Schedule</h2>
           </div>
-          <div className="flex items-center gap-2">
+          <div className="flex w-full items-center gap-2 overflow-x-auto [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden sm:w-auto">
             <FilterChip current={filter} value="all"       label="All"        />
             <FilterChip current={filter} value="done"      label="Done"       />
             <FilterChip current={filter} value="knockouts" label="Knockouts"  />
@@ -92,7 +127,7 @@ export default async function HomePage({
 
         {/* EMPTY STATE — when a filter returns no slots */}
         {visibleSlots.length === 0 && (
-          <div className="surface rounded-2xl px-6 py-12 text-center text-ink-200">
+          <div className="surface rounded-lg px-6 py-12 text-center text-ink-200 shadow-card">
             {filter === 'done' ? (
               <>
                 <div className="text-base font-semibold">No matches completed yet</div>
@@ -110,7 +145,7 @@ export default async function HomePage({
         {visibleSlots.length > 0 && (
           <>
             {/* DESKTOP TABLE */}
-            <div className="hidden md:block surface rounded-2xl overflow-hidden shadow-card">
+            <div className="hidden md:block surface rounded-lg overflow-hidden shadow-card">
               <table className="match-table w-full text-sm">
                 <thead className="bg-ink-700/70 border-b border-white/5">
                   <tr className="text-[10px] uppercase tracking-[0.18em] text-ink-200">
@@ -139,6 +174,7 @@ export default async function HomePage({
           </>
         )}
       </section>
+      </div>
     </>
   );
 }
@@ -156,13 +192,40 @@ function FilterChip({ current, value, label }: { current: Filter; value: Filter;
       scroll={false}
       className={
         active
-          ? 'chip-on px-3.5 py-2 rounded-full font-semibold text-xs'
-          : 'chip px-3.5 py-2 rounded-full font-semibold text-xs'
+          ? 'chip-on shrink-0 px-3.5 py-2 rounded-full font-semibold text-xs'
+          : 'chip shrink-0 px-3.5 py-2 rounded-full font-semibold text-xs'
       }
     >
       {label}
     </Link>
   );
+}
+
+function PulseMetric({
+  label,
+  value,
+  note,
+  gold,
+}: {
+  label: string;
+  value: string | number;
+  note: string;
+  gold?: boolean;
+}) {
+  return (
+    <div className="surface metric-card rounded-lg p-5 shadow-card">
+      <div className="text-[10px] uppercase tracking-widest text-ink-300 font-semibold">{label}</div>
+      <div className={`relative mt-3 num text-4xl font-extrabold leading-none ${gold ? 'text-brand-gold' : 'text-ink-50'}`}>
+        {value}
+      </div>
+      <div className="relative mt-2 text-xs text-ink-200">{note}</div>
+    </div>
+  );
+}
+
+function percent(value: number, total: number) {
+  if (total <= 0) return 0;
+  return Math.round((value / total) * 100);
 }
 
 function ordinal(n: number) {
@@ -254,7 +317,7 @@ function MatchCell({ match }: { match: Match }) {
     return (
       <div>
         <div className={`text-[10px] uppercase tracking-widest font-extrabold mb-1 ${match.stage === 'final' ? 'gold-text' : 'text-brand-gold'}`}>
-          {match.stage === 'final' ? '★ Final' : match.stage === 'third_place' ? '3rd Place' : stageHeading(match)}
+          {match.stage === 'final' ? '★ Final' : match.stage === 'third_place' ? 'Placement Match' : stageHeading(match)}
         </div>
         <div className="font-semibold text-ink-100 italic">
           {match.stage_label?.split(' vs ').map((part, i) => (
@@ -396,7 +459,7 @@ function SlotMobile({ slot, prevSlot }: { slot: Slot; prevSlot: Slot | null }) {
   return (
     <>
       {showDivider && (
-        <div className="flex items-center justify-center py-3 stage-divider rounded-xl">
+          <div className="flex items-center justify-center py-3 stage-divider rounded-lg">
           <span className="kicker" style={{ color: '#D4AF37' }}>Knockout Stage</span>
         </div>
       )}
@@ -416,13 +479,13 @@ function SlotMobile({ slot, prevSlot }: { slot: Slot; prevSlot: Slot | null }) {
 function MatchCardMobile({ slot, match }: { slot: Slot; match: Match }) {
   if (match.team_a == null || match.team_b == null) {
     return (
-      <div className="surface rounded-xl p-4">
+      <div className="surface rounded-lg p-3.5 shadow-card">
         <div className="flex items-center justify-between mb-2">
           <div className="num font-bold">{formatTime(slot.start_time)}</div>
           <span className="text-[10px] text-ink-300 uppercase tracking-wider">Court {match.court}</span>
         </div>
         <div className={`text-[11px] uppercase tracking-widest font-extrabold mb-1 ${match.stage === 'final' ? 'gold-text' : 'text-brand-gold'}`}>
-          {match.stage === 'final' ? '★ Final' : match.stage === 'third_place' ? '3rd Place' : stageHeading(match)}
+          {match.stage === 'final' ? '★ Final' : match.stage === 'third_place' ? 'Placement Match' : stageHeading(match)}
         </div>
         <div className="font-semibold text-ink-100 italic">{match.stage_label}</div>
       </div>
@@ -435,10 +498,10 @@ function MatchCardMobile({ slot, match }: { slot: Slot; match: Match }) {
   const totalB = (match.set1_b ?? 0) + (match.set2_b ?? 0) + (match.set3_b ?? 0);
 
   return (
-    <div className="surface rounded-xl p-4">
-      <div className="flex items-center justify-between mb-3">
+    <div className="surface rounded-lg p-3.5 shadow-card">
+      <div className="flex items-start justify-between gap-3 mb-3">
         <div className="flex items-center gap-3">
-          <div className="num font-bold">{formatTime(slot.start_time)}</div>
+          <div className="num text-lg font-extrabold leading-none">{formatTime(slot.start_time)}</div>
           <div className="text-[10px] text-ink-300 uppercase tracking-wider">
             Court {match.court}{match.referee ? ` · ${match.referee.name}` : ''}
           </div>
@@ -450,8 +513,8 @@ function MatchCardMobile({ slot, match }: { slot: Slot; match: Match }) {
 
       {!done ? (
         <>
-          <div className="flex items-center gap-2 py-1.5 font-bold"><TeamLogo team={match.team_a} size="xs" />{match.team_a.name}</div>
-          <div className="flex items-center gap-2 py-1.5 font-bold"><TeamLogo team={match.team_b} size="xs" />{match.team_b.name}</div>
+          <div className="flex items-center gap-2 rounded-md bg-white/[0.025] px-2.5 py-2 font-bold"><TeamLogo team={match.team_a} size="xs" /><span className="min-w-0 truncate">{match.team_a.name}</span></div>
+          <div className="flex items-center gap-2 rounded-md bg-white/[0.025] px-2.5 py-2 font-bold"><TeamLogo team={match.team_b} size="xs" /><span className="min-w-0 truncate">{match.team_b.name}</span></div>
         </>
       ) : (
         <ScoreGrid match={match} aWon={aWon} totalA={totalA} totalB={totalB} />
