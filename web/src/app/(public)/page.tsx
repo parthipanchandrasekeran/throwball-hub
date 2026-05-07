@@ -344,17 +344,27 @@ function MatchCell({ match }: { match: Match }) {
     );
   }
 
-  const aWon = (match.score_a ?? 0) > (match.score_b ?? 0);
+  // Winner check: only meaningful once the match is done. During live, neither
+  // team should show a check mark — the match isn't over.
+  const aWon = done && (match.score_a ?? 0) > (match.score_b ?? 0);
+  const bWon = done && (match.score_b ?? 0) > (match.score_a ?? 0);
   const totalA = (match.set1_a ?? 0) + (match.set2_a ?? 0) + (match.set3_a ?? 0);
   const totalB = (match.set1_b ?? 0) + (match.set2_b ?? 0) + (match.set3_b ?? 0);
 
-  return <ScoreGrid match={match} aWon={aWon} totalA={totalA} totalB={totalB} />;
+  return (
+    <div>
+      {live && (
+        <div className="mb-2"><span className="live-pill">Live</span></div>
+      )}
+      <ScoreGrid match={match} aWon={aWon} bWon={bWon} totalA={totalA} totalB={totalB} />
+    </div>
+  );
 }
 
 /* per-set grid: header row + one row per team */
 function ScoreGrid({
-  match, aWon, totalA, totalB,
-}: { match: Match; aWon: boolean; totalA: number; totalB: number }) {
+  match, aWon, bWon, totalA, totalB,
+}: { match: Match; aWon: boolean; bWon: boolean; totalA: number; totalB: number }) {
   return (
     <div className="space-y-1">
       <div className="grid grid-cols-[1fr_repeat(4,28px)] gap-1 text-[9px] uppercase tracking-widest text-ink-300 font-bold">
@@ -372,7 +382,7 @@ function ScoreGrid({
       />
       <ScoreRow
         team={match.team_b!}
-        winner={!aWon}
+        winner={bWon}
         sets={[match.set1_b, match.set2_b, match.set3_b]}
         total={totalB}
       />
@@ -416,10 +426,10 @@ function TeamLine({ team, winner, done }: { team: Team; winner: boolean; done: b
 }
 
 function statusPill(slot: Slot) {
-  if (anyLive(slot)) {
-    return <div className="mt-2"><span className="live-pill">Live</span></div>;
-  }
-  if (allDone(slot)) {
+  // Per-match status badges live inside MatchCell now (so 2 live courts each
+  // get their own indicator). Slot-level pill only shows when the WHOLE slot
+  // is in a uniform state worth flagging — currently just "all done → Final".
+  if (allDone(slot) && !anyLive(slot)) {
     return <div className="mt-2"><span className="pill-final inline-block px-2 py-0.5 rounded text-[9px] font-bold tracking-wider uppercase">Final</span></div>;
   }
   return null;
@@ -504,6 +514,7 @@ function MatchCardMobile({ slot, match }: { slot: Slot; match: Match }) {
   const done = match.status === 'done';
   const live = match.status === 'live';
   const aWon = done && (match.score_a ?? 0) > (match.score_b ?? 0);
+  const bWon = done && (match.score_b ?? 0) > (match.score_a ?? 0);
   const totalA = (match.set1_a ?? 0) + (match.set2_a ?? 0) + (match.set3_a ?? 0);
   const totalB = (match.set1_b ?? 0) + (match.set2_b ?? 0) + (match.set3_b ?? 0);
 
@@ -529,7 +540,7 @@ function MatchCardMobile({ slot, match }: { slot: Slot; match: Match }) {
           <div className="flex items-center gap-2 rounded-md bg-white/[0.025] px-2.5 py-2 font-bold"><TeamLogo team={match.team_b} size="xs" /><span className="min-w-0 truncate">{match.team_b.name}</span></div>
         </>
       ) : (
-        <ScoreGrid match={match} aWon={aWon} totalA={totalA} totalB={totalB} />
+        <ScoreGrid match={match} aWon={aWon} bWon={bWon} totalA={totalA} totalB={totalB} />
       )}
     </div>
   );
