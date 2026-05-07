@@ -60,7 +60,11 @@ export default async function AdminDashboard() {
           return (
             <Link
               key={match.id}
-              href={`/admin/result/${match.id}`}
+              href={
+                !known ? `/admin/result/${match.id}`           // knockout w/o teams → assignment form
+                : done ? `/admin/result/${match.id}`           // done → edit final
+                : `/admin/score/${match.id}`                    // scheduled or live → live scoring
+              }
               className="tap block surface surface-hover rounded-lg p-4 active:bg-white/5 transition-colors shadow-card"
             >
               <div className="flex items-center justify-between gap-2 mb-2">
@@ -71,9 +75,11 @@ export default async function AdminDashboard() {
                     {match.referee && <> · {match.referee.name}</>}
                   </span>
                 </div>
-                {done
-                  ? <span className="pill-final shrink-0 px-2 py-0.5 rounded text-[9px] font-bold tracking-wider uppercase">Final</span>
-                  : <span className="pill-sched shrink-0 px-2 py-0.5 rounded text-[9px] font-bold tracking-wider uppercase">Scheduled</span>}
+                {match.status === 'live'
+                  ? <span className="live-pill shrink-0">Live</span>
+                  : done
+                    ? <span className="pill-final shrink-0 px-2 py-0.5 rounded text-[9px] font-bold tracking-wider uppercase">Final</span>
+                    : <span className="pill-sched shrink-0 px-2 py-0.5 rounded text-[9px] font-bold tracking-wider uppercase">Scheduled</span>}
               </div>
 
               <div className="flex items-baseline gap-2 mb-1">
@@ -90,20 +96,20 @@ export default async function AdminDashboard() {
                 <div className="font-semibold text-ink-200 italic text-[15px]">{match.stage_label}</div>
               )}
 
-              {done && (
+              {(done || match.status === 'live') && setBreakdown(match) && (
                 <div className="mt-1">
-                  <div className="num text-ink-100 text-base font-bold">
-                    {match.score_a} <span className="text-ink-300">—</span> {match.score_b}{' '}
-                    <span className="text-[10px] uppercase tracking-widest text-ink-300 font-semibold ml-1">sets</span>
-                  </div>
-                  {setBreakdown(match) && (
-                    <div className="num text-[11px] text-ink-300 mt-0.5">{setBreakdown(match)}</div>
+                  {done && (
+                    <div className="num text-ink-100 text-base font-bold">
+                      {match.score_a} <span className="text-ink-300">—</span> {match.score_b}{' '}
+                      <span className="text-[10px] uppercase tracking-widest text-ink-300 font-semibold ml-1">sets</span>
+                    </div>
                   )}
+                  <div className="num text-[11px] text-ink-300 mt-0.5">{setBreakdown(match)}</div>
                 </div>
               )}
 
               <div className="mt-3 text-xs text-brand-red font-bold flex items-center gap-1">
-                {done ? 'Edit result' : known ? 'Enter result' : 'Set teams'}
+                {done ? 'Edit result' : !known ? 'Set teams' : match.status === 'live' ? 'Continue scoring' : 'Score live'}
                 <span aria-hidden>→</span>
               </div>
             </Link>
@@ -157,16 +163,22 @@ export default async function AdminDashboard() {
                     {match.referee?.name ?? <span className="text-ink-300">—</span>}
                   </td>
                   <td className="px-4 py-3">
-                    {done
-                      ? <span className="pill-final inline-block px-2 py-0.5 rounded text-[9px] font-bold tracking-wider uppercase">Final</span>
-                      : <span className="pill-sched inline-block px-2 py-0.5 rounded text-[9px] font-bold tracking-wider uppercase">Scheduled</span>}
+                    {match.status === 'live'
+                      ? <span className="live-pill">Live</span>
+                      : done
+                        ? <span className="pill-final inline-block px-2 py-0.5 rounded text-[9px] font-bold tracking-wider uppercase">Final</span>
+                        : <span className="pill-sched inline-block px-2 py-0.5 rounded text-[9px] font-bold tracking-wider uppercase">Scheduled</span>}
                   </td>
                   <td className="px-4 py-3 text-right">
                     <Link
-                      href={`/admin/result/${match.id}`}
+                      href={
+                        !known ? `/admin/result/${match.id}`
+                        : done ? `/admin/result/${match.id}`
+                        : `/admin/score/${match.id}`
+                      }
                       className="inline-block btn-primary font-semibold px-3 py-1.5 rounded-md text-xs"
                     >
-                      {done ? 'Edit result' : known ? 'Enter result' : 'Set teams'}
+                      {done ? 'Edit result' : !known ? 'Set teams' : match.status === 'live' ? 'Continue scoring' : 'Score live'}
                     </Link>
                   </td>
                 </tr>

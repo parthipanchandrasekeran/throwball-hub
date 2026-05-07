@@ -10,7 +10,7 @@ export type Team = {
 export type Referee = { id: number; name: string };
 
 export type MatchStage = 'group' | 'sf' | 'final' | 'third_place';
-export type MatchStatus = 'scheduled' | 'done';
+export type MatchStatus = 'scheduled' | 'live' | 'done';
 export type SlotKind = 'play' | 'break';
 
 export type Match = {

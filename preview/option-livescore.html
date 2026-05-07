@@ -1,0 +1,385 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Live scoring mockup</title>
+  <link rel="icon" href="assets/tfc-logo.png" />
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;700;800&display=swap" rel="stylesheet" />
+  <script>
+    tailwind.config = { theme: { extend: {
+      fontFamily: {
+        sans:    ['Inter', 'system-ui', 'sans-serif'],
+        display: ['"Space Grotesk"', 'Inter', 'sans-serif'],
+        mono:    ['"JetBrains Mono"', 'ui-monospace', 'monospace'],
+      },
+      colors: {
+        ink:   { 50:'#F5F5F7', 100:'#D6D6DC', 200:'#9A9AA6', 300:'#5A5A66', 400:'#3A3A44', 500:'#26262E', 600:'#1C1C24', 700:'#15151B', 800:'#0E0E12', 900:'#070709' },
+        brand: { red:'#E63946', redDk:'#B22230', gold:'#D4AF37', goldLt:'#F0D67A' },
+      },
+    }}};
+  </script>
+  <style>
+    body { font-family: 'Inter', sans-serif; background:#070709; color:#F5F5F7; -webkit-font-smoothing:antialiased; }
+    .display { font-family: 'Space Grotesk', sans-serif; }
+    .num { font-family: 'JetBrains Mono', monospace; font-variant-numeric: tabular-nums; }
+
+    .bg-stage {
+      background:
+        radial-gradient(1100px 540px at 12% -10%, rgba(230,57,70,0.18), transparent 60%),
+        radial-gradient(900px 600px at 100% 0%, rgba(212,175,55,0.10), transparent 55%),
+        #070709;
+    }
+
+    .surface {
+      background:
+        linear-gradient(180deg, rgba(255,255,255,0.045), rgba(255,255,255,0.018)),
+        rgba(16,16,22,0.86);
+      border: 1px solid rgba(255,255,255,0.085);
+      backdrop-filter: blur(14px) saturate(115%);
+    }
+    .shadow-card { box-shadow: 0 1px 0 rgba(255,255,255,0.05) inset, 0 18px 40px -24px rgba(0,0,0,0.9); }
+
+    .kicker {
+      display: inline-flex; align-items: center; gap: 8px;
+      font-size: 11px; font-weight: 700; letter-spacing: 0.18em;
+      text-transform: uppercase; color: #9A9AA6;
+    }
+    .live-pill {
+      display: inline-flex; align-items: center; gap: 8px;
+      background: rgba(230,57,70,0.14);
+      border: 1px solid rgba(230,57,70,0.45);
+      color: #FF6B78;
+      font-size: 11px; font-weight: 700; letter-spacing: 0.18em;
+      text-transform: uppercase;
+      padding: 4px 10px; border-radius: 9999px;
+    }
+    .live-pill::before {
+      content:''; width: 8px; height: 8px; border-radius: 9999px;
+      background: #E63946;
+      animation: pulse 1.4s ease-in-out infinite;
+    }
+    @keyframes pulse {
+      0%, 100% { opacity: 1; box-shadow: 0 0 0 0 rgba(230,57,70,0.7); }
+      50%      { opacity: 0.6; box-shadow: 0 0 0 6px rgba(230,57,70,0); }
+    }
+
+    /* Set tabs */
+    .set-tab {
+      display: inline-flex; align-items: center; justify-content: center;
+      flex: 1;
+      padding: 10px 12px;
+      border-radius: 8px;
+      font-size: 12px; font-weight: 700; letter-spacing: 0.1em;
+      text-transform: uppercase;
+      background: rgba(255,255,255,0.04);
+      color: #9A9AA6;
+      border: 1px solid rgba(255,255,255,0.08);
+      transition: all .15s ease;
+      cursor: pointer;
+    }
+    .set-tab:hover { background: rgba(255,255,255,0.08); color: #F5F5F7; }
+    .set-tab.done {
+      background: rgba(34,197,94,0.10); color: #4ADE80; border-color: rgba(34,197,94,0.35);
+    }
+    .set-tab.active {
+      background: linear-gradient(180deg, #F04A56, #B22230);
+      color: white;
+      border-color: rgba(230,57,70,0.65);
+      box-shadow: 0 8px 18px -10px rgba(230,57,70,0.7);
+    }
+    .set-tab.future { opacity: 0.55; }
+
+    /* The big score area */
+    .score-row {
+      background: rgba(21,21,27,0.55);
+      border: 1px solid rgba(255,255,255,0.06);
+      border-radius: 12px;
+      padding: 18px 20px;
+    }
+    .team-name {
+      font-family: 'Space Grotesk', sans-serif;
+      font-weight: 700; font-size: 18px; letter-spacing: -0.01em;
+    }
+    .big-num {
+      font-family: 'JetBrains Mono', monospace; font-variant-numeric: tabular-nums;
+      font-weight: 800;
+      font-size: 64px; line-height: 1; color: #F5F5F7;
+    }
+    .btn-plus, .btn-minus {
+      display: inline-flex; align-items: center; justify-content: center;
+      width: 100%;
+      font-family: 'Space Grotesk', sans-serif;
+      font-weight: 800;
+      transition: all .12s ease;
+      user-select: none;
+      border-radius: 10px;
+    }
+    .btn-plus {
+      height: 64px;
+      font-size: 22px;
+      background: linear-gradient(180deg, #F04A56, #B22230);
+      color: white;
+      box-shadow:
+        0 12px 22px -14px rgba(230,57,70,0.9),
+        0 1px 0 rgba(255,255,255,0.18) inset;
+    }
+    .btn-plus:active {
+      transform: scale(0.97) translateY(1px);
+      filter: brightness(0.95);
+    }
+    .btn-minus {
+      height: 44px;
+      font-size: 16px;
+      background: rgba(255,255,255,0.05);
+      color: #D6D6DC;
+      border: 1px solid rgba(255,255,255,0.10);
+    }
+    .btn-minus:active { background: rgba(255,255,255,0.10); transform: scale(0.97); }
+
+    .summary-pill {
+      display: inline-flex; align-items: center; gap: 10px;
+      padding: 10px 14px;
+      background: rgba(21,21,27,0.55);
+      border: 1px solid rgba(255,255,255,0.07);
+      border-radius: 10px;
+      font-size: 13px;
+    }
+
+    .btn-complete {
+      display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+      width: 100%; height: 56px;
+      font-weight: 800; font-size: 14px; letter-spacing: 0.1em; text-transform: uppercase;
+      background: linear-gradient(180deg, #F0D67A, #D4AF37);
+      color: #070709;
+      border-radius: 12px;
+      box-shadow:
+        0 14px 28px -16px rgba(212,175,55,0.85),
+        0 1px 0 rgba(255,255,255,0.35) inset;
+    }
+    .btn-secondary {
+      display: inline-flex; align-items: center; justify-content: center; gap: 6px;
+      padding: 10px 16px;
+      font-size: 12px; font-weight: 600;
+      background: rgba(255,255,255,0.04);
+      color: #D6D6DC;
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 8px;
+    }
+
+    .undo-pill {
+      display: inline-flex; align-items: center; gap: 6px;
+      padding: 6px 10px;
+      background: rgba(255,255,255,0.05);
+      border: 1px solid rgba(255,255,255,0.10);
+      border-radius: 9999px;
+      font-size: 11px; color: #9A9AA6;
+    }
+
+    .mock-tag {
+      position: fixed; top: 12px; right: 12px; z-index: 50;
+      background: rgba(230,57,70,0.85); color: #fff;
+      font-size: 11px; font-weight: 700; letter-spacing: 0.1em;
+      padding: 6px 12px; border-radius: 9999px; text-transform: uppercase;
+    }
+
+    /* Public-side sneak peek — what viewers see */
+    .public-row {
+      background: rgba(21,21,27,0.6);
+      border: 1px solid rgba(255,255,255,0.06);
+      border-radius: 10px;
+      padding: 12px 14px;
+    }
+    .pulse-dot {
+      width: 8px; height: 8px; border-radius: 9999px; background: #E63946;
+      animation: pulse 1.4s ease-in-out infinite;
+      display: inline-block;
+    }
+  </style>
+</head>
+<body class="bg-stage min-h-screen">
+
+  <div class="mock-tag">Mockup · Live scoring</div>
+
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 py-6 sm:py-8">
+
+    <div class="grid grid-cols-1 lg:grid-cols-[1fr_360px] gap-6 lg:gap-8 items-start">
+
+      <!-- ===================== ADMIN LIVE SCORING SCREEN ===================== -->
+      <div class="surface rounded-xl shadow-card p-4 sm:p-5">
+
+        <a href="#" class="text-xs text-ink-200 hover:text-ink-50 font-semibold inline-flex items-center gap-1">
+          <span>←</span> All matches
+        </a>
+
+        <div class="mt-3 flex items-start justify-between gap-3 flex-wrap">
+          <div class="min-w-0">
+            <div class="kicker mb-1.5 text-[10px]">9:20 — 10:05 · Court 1 · Ref Saaketh</div>
+            <h1 class="display text-xl sm:text-2xl font-bold leading-tight">
+              Sauga Slayers <span class="text-ink-300">vs</span> Net Ninjas
+            </h1>
+          </div>
+          <div class="live-pill">Live</div>
+        </div>
+
+        <!-- Set tabs -->
+        <div class="mt-5 grid grid-cols-3 gap-2">
+          <button class="set-tab done">
+            <span>Set 1 · 15-12 ✓</span>
+          </button>
+          <button class="set-tab active">
+            <span>Set 2 · scoring</span>
+          </button>
+          <button class="set-tab future">
+            <span>Set 3</span>
+          </button>
+        </div>
+
+        <!-- Score rows for the active set -->
+        <div class="mt-5 space-y-3">
+
+          <!-- Team A -->
+          <div class="score-row">
+            <div class="flex items-center justify-between gap-3 mb-3">
+              <div class="flex items-center gap-3 min-w-0">
+                <span class="inline-block w-9 h-9 rounded-md shrink-0" style="background:#F2A93B"></span>
+                <div class="team-name truncate">Sauga Slayers</div>
+              </div>
+              <div class="big-num">8</div>
+            </div>
+            <div class="grid grid-cols-[1fr_auto] gap-2 items-stretch">
+              <button class="btn-plus">+ 1</button>
+              <button class="btn-minus" style="width:64px;">−1</button>
+            </div>
+          </div>
+
+          <!-- Team B -->
+          <div class="score-row">
+            <div class="flex items-center justify-between gap-3 mb-3">
+              <div class="flex items-center gap-3 min-w-0">
+                <span class="inline-block w-9 h-9 rounded-md shrink-0" style="background:#1F1F1F; box-shadow:0 0 0 1px rgba(255,255,255,0.18)"></span>
+                <div class="team-name truncate">Net Ninjas</div>
+              </div>
+              <div class="big-num">5</div>
+            </div>
+            <div class="grid grid-cols-[1fr_auto] gap-2 items-stretch">
+              <button class="btn-plus">+ 1</button>
+              <button class="btn-minus" style="width:64px;">−1</button>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- Recent activity / undo -->
+        <div class="mt-3 flex items-center justify-between text-xs">
+          <span class="undo-pill">
+            <span class="text-brand-red">●</span> Slayers +1 just now
+          </span>
+          <button class="text-xs text-ink-200 hover:text-ink-50 font-semibold">↶ Undo last</button>
+        </div>
+
+        <!-- Bottom summary + final actions -->
+        <div class="mt-5 pt-5 border-t border-white/5">
+          <div class="kicker mb-3 text-[10px]">Match summary</div>
+
+          <div class="space-y-2 mb-5 text-sm">
+            <div class="summary-pill w-full justify-between">
+              <span class="text-ink-300">Set 1</span>
+              <span class="num font-bold text-ink-50">Slayers <span class="text-emerald-400">15</span> — 12 Ninjas</span>
+              <span class="text-emerald-400 font-bold text-[10px] tracking-widest">DONE</span>
+            </div>
+            <div class="summary-pill w-full justify-between" style="border-color:rgba(230,57,70,0.35)">
+              <span class="text-ink-300">Set 2</span>
+              <span class="num font-bold text-ink-50">Slayers <span class="text-brand-red">8</span> — 5 Ninjas</span>
+              <span class="text-brand-red font-bold text-[10px] tracking-widest flex items-center gap-1.5"><span class="pulse-dot"></span>LIVE</span>
+            </div>
+            <div class="summary-pill w-full justify-between opacity-60">
+              <span class="text-ink-300">Set 3</span>
+              <span class="text-ink-400">— not played —</span>
+              <span></span>
+            </div>
+          </div>
+
+          <button class="btn-complete">
+            ✓  Mark match complete
+          </button>
+
+          <div class="mt-3 text-center text-[11px] text-ink-300">
+            Tap "Mark match complete" once the match is over. The scores you've entered get locked in and the standings update.
+          </div>
+        </div>
+
+      </div>
+
+      <!-- ===================== PUBLIC SIDE PREVIEW ===================== -->
+      <div>
+        <div class="kicker mb-3 text-[10px]">What viewers see</div>
+        <div class="surface rounded-xl shadow-card p-4 space-y-3">
+
+          <!-- Live row in the schedule -->
+          <div class="public-row">
+            <div class="flex items-center justify-between mb-2">
+              <div class="flex items-center gap-2 text-[10px] text-ink-300 uppercase tracking-wider">
+                <span class="num font-bold text-ink-100">9:20</span>
+                <span>·</span>
+                <span>Court 1</span>
+              </div>
+              <div class="inline-flex items-center gap-1.5 bg-brand-red/10 border border-brand-red/40 px-2 py-0.5 rounded text-[9px] font-bold uppercase tracking-wider" style="color:#FF6B78">
+                <span class="pulse-dot"></span> Live
+              </div>
+            </div>
+            <!-- Mini score grid -->
+            <div class="grid grid-cols-[1fr_repeat(3,28px)_auto] gap-1 text-[10px] uppercase tracking-widest text-ink-300 font-bold">
+              <span></span>
+              <span class="text-center">S1</span>
+              <span class="text-center">S2</span>
+              <span class="text-center">S3</span>
+              <span class="text-center w-7">T</span>
+            </div>
+            <div class="grid grid-cols-[1fr_repeat(3,28px)_auto] gap-1 items-center text-[13px] mt-1">
+              <div class="font-bold flex items-center gap-2 min-w-0"><span class="inline-block w-3 h-3 rounded-sm" style="background:#F2A93B"></span><span class="truncate">Slayers</span></div>
+              <div class="num text-center font-semibold">15</div>
+              <div class="num text-center font-semibold text-brand-red">8</div>
+              <div class="num text-center text-ink-400">—</div>
+              <div class="num text-center font-extrabold w-7">23</div>
+            </div>
+            <div class="grid grid-cols-[1fr_repeat(3,28px)_auto] gap-1 items-center text-[13px]">
+              <div class="font-bold flex items-center gap-2 min-w-0 text-ink-300"><span class="inline-block w-3 h-3 rounded-sm" style="background:#1F1F1F; box-shadow:0 0 0 1px rgba(255,255,255,0.18)"></span><span class="truncate">Ninjas</span></div>
+              <div class="num text-center text-ink-300">12</div>
+              <div class="num text-center text-ink-300">5</div>
+              <div class="num text-center text-ink-400">—</div>
+              <div class="num text-center font-extrabold w-7 text-ink-300">17</div>
+            </div>
+          </div>
+
+          <div class="text-[11px] text-ink-300 italic text-center">
+            Updates within ~600 ms of each + tap. Pulsing red badge tells viewers the match is still going.
+          </div>
+        </div>
+
+        <!-- Notes -->
+        <div class="mt-4 surface rounded-xl shadow-card p-4 text-[12px] text-ink-200 leading-relaxed">
+          <div class="kicker mb-2 text-[10px]">How it works</div>
+          <ul class="space-y-2 list-disc list-inside marker:text-ink-400">
+            <li><b class="text-ink-100">Tap +1</b> after every point. Big red button, easy to find without looking.</li>
+            <li><b class="text-ink-100">Tap −1</b> to undo a wrong tap. Or hit "Undo last" for the most recent action.</li>
+            <li><b class="text-ink-100">Switch sets</b> by tapping the Set 1 / 2 / 3 tab when teams move on.</li>
+            <li><b class="text-ink-100">Mark match complete</b> when the match ends. Locks scores and updates standings.</li>
+            <li><b class="text-ink-100">No rules enforced.</b> You enter what actually happened — site doesn't auto-end at 15.</li>
+          </ul>
+        </div>
+      </div>
+
+    </div>
+
+    <p class="mt-8 text-center text-[11px] text-ink-300 italic">
+      Mockup of the live scoring screen. The actual <code>/admin/result/[id]</code> page would look like this when the match is in <code>live</code> state.
+    </p>
+
+  </div>
+
+</body>
+</html>

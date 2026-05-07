@@ -332,7 +332,10 @@ function MatchCell({ match }: { match: Match }) {
   }
 
   const done = match.status === 'done';
-  if (!done) {
+  const live = match.status === 'live';
+
+  // No scores entered yet (and not done) — just show team names
+  if (!done && !live) {
     return (
       <div className="space-y-1.5">
         <TeamLine team={match.team_a} winner={false} done={false} />
@@ -413,6 +416,9 @@ function TeamLine({ team, winner, done }: { team: Team; winner: boolean; done: b
 }
 
 function statusPill(slot: Slot) {
+  if (anyLive(slot)) {
+    return <div className="mt-2"><span className="live-pill">Live</span></div>;
+  }
   if (allDone(slot)) {
     return <div className="mt-2"><span className="pill-final inline-block px-2 py-0.5 rounded text-[9px] font-bold tracking-wider uppercase">Final</span></div>;
   }
@@ -438,6 +444,9 @@ function isKnockout(slot: Slot) {
 }
 function anyDone(slot: Slot) {
   return slot.matches.some(m => m.status === 'done');
+}
+function anyLive(slot: Slot) {
+  return slot.matches.some(m => m.status === 'live');
 }
 function allDone(slot: Slot) {
   return slot.matches.length > 0 && slot.matches.every(m => m.status === 'done');
@@ -493,6 +502,7 @@ function MatchCardMobile({ slot, match }: { slot: Slot; match: Match }) {
   }
 
   const done = match.status === 'done';
+  const live = match.status === 'live';
   const aWon = done && (match.score_a ?? 0) > (match.score_b ?? 0);
   const totalA = (match.set1_a ?? 0) + (match.set2_a ?? 0) + (match.set3_a ?? 0);
   const totalB = (match.set1_b ?? 0) + (match.set2_b ?? 0) + (match.set3_b ?? 0);
@@ -506,12 +516,14 @@ function MatchCardMobile({ slot, match }: { slot: Slot; match: Match }) {
             Court {match.court}{match.referee ? ` · ${match.referee.name}` : ''}
           </div>
         </div>
-        {done
-          ? <span className="pill-final px-2 py-0.5 rounded text-[9px] font-bold tracking-wider uppercase">Final {match.score_a}-{match.score_b}</span>
-          : <span className="pill-sched px-2 py-0.5 rounded text-[9px] font-bold tracking-wider uppercase">Scheduled</span>}
+        {live
+          ? <span className="live-pill">Live</span>
+          : done
+            ? <span className="pill-final px-2 py-0.5 rounded text-[9px] font-bold tracking-wider uppercase">Final {match.score_a}-{match.score_b}</span>
+            : <span className="pill-sched px-2 py-0.5 rounded text-[9px] font-bold tracking-wider uppercase">Scheduled</span>}
       </div>
 
-      {!done ? (
+      {!done && !live ? (
         <>
           <div className="flex items-center gap-2 rounded-md bg-white/[0.025] px-2.5 py-2 font-bold"><TeamLogo team={match.team_a} size="xs" /><span className="min-w-0 truncate">{match.team_a.name}</span></div>
           <div className="flex items-center gap-2 rounded-md bg-white/[0.025] px-2.5 py-2 font-bold"><TeamLogo team={match.team_b} size="xs" /><span className="min-w-0 truncate">{match.team_b.name}</span></div>
