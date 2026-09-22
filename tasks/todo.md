@@ -19,7 +19,7 @@ Plan: `C:\Users\pc\.claude\plans\zazzy-petting-horizon.md`
 - [x] Verify: `npm run build`
 - [x] Verify: trigger dry run in a rolled-back DO block
 - [x] Verify: local preview screenshots (desktop + mobile)
-- [ ] Commit, push, confirm Netlify deploy is live
+- [x] Commit (88c1eff), push, confirm Netlify deploy is live (2026-09-22: `/`, `/standings`, `/bracket` serve the three-court, two-division layout)
 
 ## Review
 
