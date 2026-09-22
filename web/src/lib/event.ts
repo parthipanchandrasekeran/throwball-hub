@@ -8,14 +8,13 @@ export const EVENT = {
   titleLines: ['TFC Throwball', 'Tournament'] as const,
   name: 'TFC Throwball Tournament',
   /** Shown in the top bar and page metadata. */
-  dateLabel: 'September 2026',
-  kicker: 'Match Day · Sept 2026',
+  dateLabel: 'Sat 26 Sept 2026',
+  kicker: 'Match Day · 26 Sept',
   /**
-   * Epoch ms of first serve (Toronto local time converted to UTC), e.g.
-   * Date.UTC(2026, 8, 26, 13, 0, 0) for 26 Sept 9:00 EDT. While null the
-   * countdown stays hidden because the day has not been announced.
+   * Epoch ms of first serve: 26 Sept 2026, 9:00 AM Toronto (EDT, UTC-4)
+   * == 13:00 UTC. Set to null to hide the countdown.
    */
-  startsAt: null as number | null,
+  startsAt: Date.UTC(2026, 8, 26, 13, 0, 0) as number | null,
   teams: 10,
   matches: 30,
   courts: 3,

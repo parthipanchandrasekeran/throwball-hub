@@ -23,8 +23,8 @@ const jetbrains = JetBrains_Mono({
 
 const TITLE = `Throwball Hub — ${EVENT.name} · ${EVENT.dateLabel}`;
 const DESCRIPTION =
-  `Live schedule, standings and results for the Throwball Federation of Canada ${EVENT.dateLabel} tournament — ` +
-  `Gold and Bronze divisions, ${EVENT.teams} teams, ${EVENT.courts} courts.`;
+  `Live schedule, standings and results for the ${EVENT.name} on ${EVENT.dateLabel} — ` +
+  `Throwball Federation of Canada. Gold and Bronze divisions, ${EVENT.teams} teams, ${EVENT.courts} courts.`;
 
 export const metadata: Metadata = {
   metadataBase: new URL('https://throwball-hub.netlify.app'),
