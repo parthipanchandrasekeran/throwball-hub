@@ -1,12 +1,10 @@
-import { getStandings } from '@/lib/data';
-import type { StandingsRow } from '@/lib/types';
+import { byDivision, DIVISIONS, getStandings } from '@/lib/data';
+import { divisionLabel } from '@/lib/format';
+import type { Division, StandingsRow } from '@/lib/types';
 import { TeamLogo } from '@/components/TeamLogo';
 
 // Always fresh — see comment in (public)/page.tsx.
 export const dynamic = 'force-dynamic';
-
-const dotShadow = (color: string) =>
-  color.toLowerCase() === '#1f1f1f' ? '0 0 0 2px rgba(255,255,255,0.18)' : undefined;
 
 const signed = (n: number) => (n > 0 ? `+${n}` : `${n}`);
 const trendClass = (n: number) =>
@@ -24,28 +22,94 @@ const LEGEND: { code: string; label: string }[] = [
   { code: 'EP', label: 'Extras Points' },
 ];
 
+type SnapshotSpec = { label: string; rank: number; gold?: boolean; muted?: boolean };
+
+/** How each division's table feeds its bracket. */
+const QUALIFICATION: Record<Division, {
+  blurb: string;
+  snapshots: SnapshotSpec[];
+  highlight: (rank: number) => boolean;
+  highlightNote: string | null;
+}> = {
+  gold: {
+    blurb: '1st and 2nd go straight to the semi-finals. 3rd to 6th play the quarter-finals (3rd v 6th, 4th v 5th).',
+    snapshots: [
+      { label: 'Current Leader',         rank: 1, gold: true },
+      { label: 'Semi-final Bye Cut',     rank: 2 },
+      { label: 'First Quarter-finalist', rank: 3, muted: true },
+    ],
+    highlight: rank => rank <= 2,
+    highlightNote: 'Straight to the semi-finals',
+  },
+  bronze: {
+    blurb: 'All four teams reach the semi-finals, seeded by this table (1st v 4th, 2nd v 3rd).',
+    snapshots: [
+      { label: 'Current Leader', rank: 1, gold: true },
+      { label: 'Second Seed',    rank: 2 },
+      { label: 'Fourth Seed',    rank: 4, muted: true },
+    ],
+    highlight: () => false,
+    highlightNote: null,
+  },
+};
+
 export default async function StandingsPage() {
   const rows = await getStandings();
+  const divisions = byDivision(rows);
 
   return (
     <section>
-      <div className="mb-6">
+      <div className="mb-8">
         <div className="kicker mb-2">Group Stage</div>
         <h2 className="display text-2xl sm:text-4xl font-bold">Standings</h2>
         <p className="text-ink-200 text-sm mt-2 max-w-xl">
-          Sorted by Points, then Wins, then Sets Difference, then Points Difference. Top 4 advance to the knockout bracket.
+          Sorted by Points, then Wins, then Sets Difference, then Points Difference. Each division has its own table and bracket.
         </p>
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-6">
-        <Snapshot label="Current Leader" row={rows[0]} rank={1} gold />
-        <Snapshot label="Qualification Cut" row={rows[3]} rank={4} />
-        <Snapshot label="First Chaser" row={rows[4]} rank={5} muted />
+      <div className="space-y-12">
+        {DIVISIONS.map(div => (
+          <DivisionStandings key={div} division={div} rows={divisions[div]} />
+        ))}
+      </div>
+
+      {/* Legend */}
+      <div className="mt-8 surface rounded-lg p-4 shadow-card">
+        <div className="text-[10px] uppercase tracking-widest text-ink-300 font-semibold mb-3">Legend</div>
+        <dl className="grid grid-cols-2 sm:grid-cols-3 gap-x-6 gap-y-2 text-xs">
+          {LEGEND.map(({ code, label }) => (
+            <div key={code} className="flex items-baseline gap-2">
+              <dt className="num font-bold text-ink-100 w-7 shrink-0">{code}</dt>
+              <dd className="text-ink-200">{label}</dd>
+            </div>
+          ))}
+        </dl>
+      </div>
+    </section>
+  );
+}
+
+function DivisionStandings({ division, rows }: { division: Division; rows: StandingsRow[] }) {
+  const q = QUALIFICATION[division];
+
+  return (
+    <div>
+      <div className="mb-4 flex flex-col sm:flex-row sm:items-baseline sm:justify-between gap-1 sm:gap-4">
+        <h3 className={`display text-xl sm:text-2xl font-bold ${division === 'gold' ? 'text-brand-gold' : 'text-ink-50'}`}>
+          {divisionLabel[division]} Division
+        </h3>
+        <span className="text-xs text-ink-300 sm:text-right sm:max-w-md">{q.blurb}</span>
+      </div>
+
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-5">
+        {q.snapshots.map(s => (
+          <Snapshot key={s.label} label={s.label} row={rows[s.rank - 1]} rank={s.rank} gold={s.gold} muted={s.muted} />
+        ))}
       </div>
 
       {/* MOBILE: stacked cards */}
       <div className="md:hidden space-y-2">
-        {rows.map((r, i) => <MobileRow key={r.team_id} rank={i + 1} row={r} />)}
+        {rows.map((r, i) => <MobileRow key={r.team_id} rank={i + 1} row={r} highlight={q.highlight(i + 1)} />)}
       </div>
 
       {/* DESKTOP: full table */}
@@ -69,10 +133,9 @@ export default async function StandingsPage() {
             </thead>
             <tbody className="divide-y divide-white/5">
               {rows.map((r, i) => {
-                const rank     = i + 1;
-                const advances = rank <= 4;
+                const rank = i + 1;
                 return (
-                  <tr key={r.team_id} className={advances ? 'bg-emerald-500/[0.02]' : ''}>
+                  <tr key={r.team_id} className={q.highlight(rank) ? 'bg-emerald-500/[0.02]' : ''}>
                     <td className="px-4 py-4 num text-ink-200">
                       <span className={`inline-flex items-center justify-center w-7 h-7 rounded-md text-xs font-bold ${rank === 1 ? 'bg-brand-gold/20 text-brand-gold' : 'bg-white/5 text-ink-100'}`}>
                         {rank}
@@ -101,32 +164,19 @@ export default async function StandingsPage() {
         </div>
       </div>
 
-      {/* Legend + qualification key */}
-      <div className="mt-5 flex flex-col gap-3">
-        <div className="text-[11px] text-ink-300 flex items-center">
+      {q.highlightNote && (
+        <div className="mt-3 text-[11px] text-ink-300 flex items-center">
           <span className="inline-block w-2 h-2 rounded-sm bg-emerald-500/60 align-middle mr-2" />
-          Top 4 advance to knockout bracket
+          {q.highlightNote}
         </div>
-        <div className="surface rounded-lg p-4 shadow-card">
-          <div className="text-[10px] uppercase tracking-widest text-ink-300 font-semibold mb-3">Legend</div>
-          <dl className="grid grid-cols-2 sm:grid-cols-3 gap-x-6 gap-y-2 text-xs">
-            {LEGEND.map(({ code, label }) => (
-              <div key={code} className="flex items-baseline gap-2">
-                <dt className="num font-bold text-ink-100 w-7 shrink-0">{code}</dt>
-                <dd className="text-ink-200">{label}</dd>
-              </div>
-            ))}
-          </dl>
-        </div>
-      </div>
-    </section>
+      )}
+    </div>
   );
 }
 
-function MobileRow({ rank, row: r }: { rank: number; row: StandingsRow }) {
-  const advances = rank <= 4;
+function MobileRow({ rank, row: r, highlight }: { rank: number; row: StandingsRow; highlight: boolean }) {
   return (
-    <div className={`surface rounded-lg p-3.5 shadow-card ${advances ? 'border-emerald-500/15' : ''}`}>
+    <div className={`surface rounded-lg p-3.5 shadow-card ${highlight ? 'border-emerald-500/15' : ''}`}>
       <div className="flex items-center gap-3">
         <span className={`inline-flex items-center justify-center w-9 h-9 rounded-lg text-sm font-bold shrink-0 num ${rank === 1 ? 'bg-brand-gold/20 text-brand-gold' : 'bg-white/5 text-ink-100'}`}>
           {rank}

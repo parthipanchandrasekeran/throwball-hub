@@ -1,11 +1,28 @@
 import Link from 'next/link';
-import { getSlots, getStandings, summarizeMatches } from '@/lib/data';
-import { formatTime } from '@/lib/format';
-import type { Match, Slot, Team } from '@/lib/types';
+import { Fragment } from 'react';
+import { byDivision, DIVISIONS, getSlots, getStandings, summarizeMatches } from '@/lib/data';
+import { divisionLabel, formatTime, knockoutHeading, minutesBetween, placeholderSides } from '@/lib/format';
+import { EVENT } from '@/lib/event';
+import type { Division, Match, Slot, Team } from '@/lib/types';
 import { ArcadeBlastBreakCard } from '@/components/ArcadeBlastBreakCard';
 import { TeamLogo } from '@/components/TeamLogo';
 
 type Filter = 'all' | 'done' | 'knockouts';
+
+/** Court order + header labels for the desktop table. Court 2 is the Bronze court. */
+const COURTS = [1, 2, 3] as const;
+const COURT_LABEL: Record<(typeof COURTS)[number], string> = {
+  1: 'Court 1 · Gold',
+  2: 'Court 2 · Bronze',
+  3: 'Court 3 · Gold',
+};
+const TABLE_COLS = 1 + COURTS.length * 2;
+
+/** Static class strings so Tailwind can see them. */
+const MINI_GRID: Record<Division, string> = {
+  gold:   'grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3',
+  bronze: 'grid grid-cols-2 sm:grid-cols-4 gap-3',
+};
 
 function applyFilter(slots: Slot[], filter: Filter): Slot[] {
   if (filter === 'done')      return slots.filter(s => s.matches.some(m => m.status === 'done'));
@@ -36,6 +53,7 @@ export default async function HomePage({
   const progress = percent(summary.done, summary.total);
   const groupProgress = percent(summary.groupDone, summary.groupTotal);
   const knockoutMatches = slots.flatMap(s => s.matches).filter(m => m.stage !== 'group').length;
+  const standingsByDivision = byDivision(standings);
 
   return (
     <>
@@ -47,7 +65,7 @@ export default async function HomePage({
             <div className="flex flex-wrap items-start justify-between gap-4">
               <div>
                 <div className="kicker mb-2">Tournament Pulse</div>
-                <h2 className="display text-2xl sm:text-3xl font-bold">Championship dashboard</h2>
+                <h2 className="display text-2xl sm:text-3xl font-bold">Tournament dashboard</h2>
                 <p className="mt-2 text-sm text-ink-200 max-w-xl">
                   Live scores and schedule updates for players, officials, and supporters.
                 </p>
@@ -66,8 +84,8 @@ export default async function HomePage({
             </div>
           </div>
 
-          <PulseMetric label="Group Progress" value={`${groupProgress}%`} note="Top 4 advance" />
-          <PulseMetric label="Knockout Matches" value={knockoutMatches} note="Semi-finals and final" gold />
+          <PulseMetric label="Group Progress" value={`${groupProgress}%`} note="Gold and Bronze divisions" />
+          <PulseMetric label="Knockout Matches" value={knockoutMatches} note="Quarter-finals, semi-finals and finals" gold />
         </div>
       </section>
 
@@ -83,28 +101,40 @@ export default async function HomePage({
           </a>
         </div>
 
-        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
-          {standings.map((row, i) => {
-            const rank = i + 1;
-            const isFirst = rank === 1;
-            return (
-              <div key={row.team_id} className="surface surface-hover relative overflow-hidden rounded-lg p-4 shadow-card">
-                <div className={`rank-bg ${isFirst ? 'rank-bg-gold' : ''}`}>{String(rank).padStart(2, '0')}</div>
-                <div className="relative flex flex-col items-center text-center">
-                  <TeamLogo team={row} size="md" />
-                  <div className={`mt-3 text-[10px] font-bold tracking-widest uppercase ${isFirst ? 'text-brand-gold' : 'text-ink-100'}`}>
-                    {ordinal(rank)}
-                  </div>
-                  <div className="mt-1 font-bold text-sm w-full truncate">{row.name}</div>
-                  <div className="mt-2 flex items-baseline gap-1">
-                    <span className="num text-2xl font-extrabold">{row.points}</span>
-                    <span className="text-[10px] uppercase tracking-wider text-ink-300 font-semibold">pts</span>
-                  </div>
-                  <div className="text-[11px] text-ink-200 mt-0.5 num">{row.won}W · {row.lost}L</div>
-                </div>
+        <div className="space-y-6">
+          {DIVISIONS.map(div => (
+            <div key={div}>
+              <div className="mb-3 flex items-baseline gap-2">
+                <span className={`text-[10px] uppercase tracking-widest font-extrabold ${div === 'gold' ? 'text-brand-gold' : 'text-ink-100'}`}>
+                  {divisionLabel[div]} Division
+                </span>
+                <span className="text-[11px] text-ink-300">{standingsByDivision[div].length} teams</span>
               </div>
-            );
-          })}
+              <div className={MINI_GRID[div]}>
+                {standingsByDivision[div].map((row, i) => {
+                  const rank = i + 1;
+                  const isFirst = rank === 1;
+                  return (
+                    <div key={row.team_id} className="surface surface-hover relative overflow-hidden rounded-lg p-4 shadow-card">
+                      <div className={`rank-bg ${isFirst ? 'rank-bg-gold' : ''}`}>{String(rank).padStart(2, '0')}</div>
+                      <div className="relative flex flex-col items-center text-center">
+                        <TeamLogo team={row} size="md" />
+                        <div className={`mt-3 text-[10px] font-bold tracking-widest uppercase ${isFirst ? 'text-brand-gold' : 'text-ink-100'}`}>
+                          {ordinal(rank)}
+                        </div>
+                        <div className="mt-1 font-bold text-sm w-full truncate">{row.name}</div>
+                        <div className="mt-2 flex items-baseline gap-1">
+                          <span className="num text-2xl font-extrabold">{row.points}</span>
+                          <span className="text-[10px] uppercase tracking-wider text-ink-300 font-semibold">pts</span>
+                        </div>
+                        <div className="text-[11px] text-ink-200 mt-0.5 num">{row.won}W · {row.lost}L</div>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          ))}
         </div>
         <div className="mt-3 text-[11px] text-ink-300 italic">
           Updated after {summary.groupDone} of {summary.groupTotal} group matches.
@@ -115,7 +145,7 @@ export default async function HomePage({
       <section id="schedule" className="order-1 scroll-mt-20 mb-10 sm:order-3 sm:mb-0">
         <div className="sticky top-[49px] z-20 -mx-3 mb-4 border-y border-white/5 bg-ink-900/88 px-3 py-3 backdrop-blur-md sm:static sm:mx-0 sm:mb-5 sm:border-0 sm:bg-transparent sm:px-0 sm:py-0 sm:backdrop-blur-0 flex flex-wrap items-end justify-between gap-3">
           <div>
-            <div className="kicker mb-2">Match Day · 9 May</div>
+            <div className="kicker mb-2">{EVENT.kicker}</div>
             <h2 className="display text-2xl sm:text-3xl font-bold">Schedule</h2>
           </div>
           <div className="flex w-full items-center gap-2 overflow-x-auto [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden sm:w-auto">
@@ -144,17 +174,18 @@ export default async function HomePage({
 
         {visibleSlots.length > 0 && (
           <>
-            {/* DESKTOP TABLE */}
-            <div className="hidden md:block surface rounded-lg overflow-hidden shadow-card">
+            {/* DESKTOP TABLE — three courts need the full width, so cards stay until lg */}
+            <div className="hidden lg:block surface rounded-lg overflow-hidden shadow-card">
               <table className="match-table w-full text-sm">
                 <thead className="bg-ink-700/70 border-b border-white/5">
                   <tr className="text-[10px] uppercase tracking-[0.18em] text-ink-200">
-                    <th className="text-left px-5 py-3.5 font-bold w-28">Time</th>
-                    <th className="text-left px-5 py-3.5 font-bold">Court 1</th>
-                    <th className="text-left px-5 py-3.5 font-bold w-28">Referee</th>
-                    <th className="text-left px-5 py-3.5 font-bold">Court 2</th>
-                    <th className="text-left px-5 py-3.5 font-bold w-28">Referee</th>
-                    <th className="text-left px-5 py-3.5 font-bold w-32">Bye</th>
+                    <th className="text-left px-4 py-3.5 font-bold w-24">Time</th>
+                    {COURTS.map(c => (
+                      <Fragment key={c}>
+                        <th className="text-left px-4 py-3.5 font-bold">{COURT_LABEL[c]}</th>
+                        <th className="text-left px-4 py-3.5 font-bold w-28">Referee</th>
+                      </Fragment>
+                    ))}
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-white/5">
@@ -165,8 +196,8 @@ export default async function HomePage({
               </table>
             </div>
 
-            {/* MOBILE CARDS */}
-            <div className="md:hidden space-y-3">
+            {/* MOBILE / TABLET CARDS */}
+            <div className="lg:hidden space-y-3">
               {visibleSlots.map((slot, i) => (
                 <SlotMobile key={slot.id} slot={slot} prevSlot={i > 0 ? visibleSlots[i - 1] : null} />
               ))}
@@ -234,98 +265,85 @@ function ordinal(n: number) {
   return n + (s[(v - 20) % 10] || s[v] || s[0]);
 }
 
-function TeamDot({ color }: { color: string }) {
-  const isDark = color.toLowerCase() === '#1f1f1f';
-  return (
-    <span
-      className="team-dot"
-      style={{
-        background: color,
-        boxShadow: isDark ? '0 0 0 2px rgba(255,255,255,0.18)' : undefined,
-      }}
-    />
-  );
-}
-
-function TeamBar({ color }: { color: string }) {
-  const isDark = color.toLowerCase() === '#1f1f1f';
-  return (
-    <span
-      className="team-bar"
-      style={{
-        background: color,
-        boxShadow: isDark ? '0 0 0 2px rgba(255,255,255,0.18)' : undefined,
-      }}
-    />
-  );
-}
-
 /* ----------------------- desktop slot row ----------------------- */
 
 function SlotRow({ slot, prevSlot }: { slot: Slot; prevSlot: Slot | null }) {
-  // Stage divider before first knockout slot
-  const showDivider = isKnockout(slot) && (!prevSlot || !isKnockout(prevSlot));
+  // Divider before the first slot made up entirely of knockout matches. Bronze
+  // semis run alongside Gold group play earlier in the day; those carry their
+  // own headings inside the cell instead.
+  const showDivider = isAllKnockout(slot) && (!prevSlot || !isAllKnockout(prevSlot));
 
   if (slot.kind === 'break') {
+    const mins = minutesBetween(slot.start_time, slot.end_time);
     return (
       <tr>
-        <td className="px-5 py-3 align-middle">
+        <td className="px-4 py-3 align-middle">
           <div className="num font-bold text-base">{formatTime(slot.start_time)}</div>
           <div className="text-[10px] text-ink-300 num">{formatTime(slot.end_time)}</div>
           <div className="mt-1.5 inline-block px-1.5 py-0.5 rounded text-[9px] font-bold tracking-wider uppercase bg-emerald-500/10 text-emerald-400 border border-emerald-500/30">
-            25 min
+            {mins} min
           </div>
         </td>
-        <td colSpan={5} className="px-3 py-3">
-          <ArcadeBlastBreakCard startTime={slot.start_time} endTime={slot.end_time} />
+        <td colSpan={TABLE_COLS - 1} className="px-3 py-3">
+          <ArcadeBlastBreakCard startTime={slot.start_time} endTime={slot.end_time} durationMin={mins} />
         </td>
       </tr>
     );
   }
 
-  const c1 = slot.matches.find(m => m.court === 1) ?? null;
-  const c2 = slot.matches.find(m => m.court === 2) ?? null;
-
   return (
     <>
       {showDivider && (
         <tr className="stage-divider">
-          <td colSpan={6} className="px-5 py-3 text-center">
+          <td colSpan={TABLE_COLS} className="px-5 py-3 text-center">
             <span className="kicker text-brand-gold!" style={{ color: '#D4AF37' }}>Knockout Stage</span>
           </td>
         </tr>
       )}
       <tr className={anyDone(slot) ? 'row-done' : ''}>
-        <td className="px-5 py-4 align-top">
+        <td className="px-4 py-4 align-top">
           <div className="num font-bold text-base">{formatTime(slot.start_time)}</div>
           <div className="text-[10px] text-ink-300 num">{formatTime(slot.end_time)}</div>
           {statusPill(slot)}
         </td>
-        <td className="px-5 py-4">{c1 ? <MatchCell match={c1} /> : <Empty />}</td>
-        <td className="px-5 py-4 text-ink-100 font-medium">{c1?.referee?.name ?? <span className="text-ink-300">{isKnockout(slot) ? 'TBD' : '—'}</span>}</td>
-        <td className="px-5 py-4">{c2 ? <MatchCell match={c2} /> : <Empty />}</td>
-        <td className="px-5 py-4 text-ink-100 font-medium">{c2?.referee?.name ?? <span className="text-ink-300">{isKnockout(slot) ? 'TBD' : '—'}</span>}</td>
-        <td className="px-5 py-4">{byeCell(slot)}</td>
+        {COURTS.map(c => {
+          const m = slot.matches.find(x => x.court === c) ?? null;
+          return (
+            <Fragment key={c}>
+              <td className="px-4 py-4">{m ? <MatchCell match={m} /> : <Free />}</td>
+              <td className="px-4 py-4">{m ? <RefCell match={m} /> : <span className="text-ink-300">—</span>}</td>
+            </Fragment>
+          );
+        })}
       </tr>
     </>
   );
 }
 
+function RefCell({ match }: { match: Match }) {
+  return (
+    <div className="text-ink-100 font-medium">
+      <div>{match.referee?.name ?? <span className="text-ink-300">{match.stage === 'group' ? '—' : 'TBD'}</span>}</div>
+      {match.line_ref_team && (
+        <div className="mt-0.5 text-[10px] text-ink-300 leading-tight">Line · {match.line_ref_team.name}</div>
+      )}
+    </div>
+  );
+}
+
 function MatchCell({ match }: { match: Match }) {
-  // Knockout placeholder match (no teams yet)
+  const heading = knockoutHeading(match);
+  const headingCls = `text-[10px] uppercase tracking-widest font-extrabold mb-1 ${match.bracket_key === 'FINAL' ? 'gold-text' : 'text-brand-gold'}`;
+
+  // Knockout match whose teams aren't all known yet
   if (match.team_a == null || match.team_b == null) {
+    const [a, b] = placeholderSides(match.stage_label);
     return (
       <div>
-        <div className={`text-[10px] uppercase tracking-widest font-extrabold mb-1 ${match.stage === 'final' ? 'gold-text' : 'text-brand-gold'}`}>
-          {match.stage === 'final' ? '★ Final' : match.stage === 'third_place' ? 'Placement Match' : stageHeading(match)}
-        </div>
-        <div className="font-semibold text-ink-100 italic">
-          {match.stage_label?.split(' vs ').map((part, i) => (
-            <span key={i}>
-              {i > 0 && <span className="text-ink-300"> vs </span>}
-              {part}
-            </span>
-          ))}
+        {heading && <div className={headingCls}>{heading}</div>}
+        <div className="space-y-1.5">
+          <PendingLine team={match.team_a} fallback={a} />
+          <PendingLine team={match.team_b} fallback={b} />
         </div>
       </div>
     );
@@ -337,9 +355,12 @@ function MatchCell({ match }: { match: Match }) {
   // No scores entered yet (and not done) — just show team names
   if (!done && !live) {
     return (
-      <div className="space-y-1.5">
-        <TeamLine team={match.team_a} winner={false} done={false} />
-        <TeamLine team={match.team_b} winner={false} done={false} />
+      <div>
+        {heading && <div className={headingCls}>{heading}</div>}
+        <div className="space-y-1.5">
+          <TeamLine team={match.team_a} winner={false} done={false} />
+          <TeamLine team={match.team_b} winner={false} done={false} />
+        </div>
       </div>
     );
   }
@@ -353,6 +374,7 @@ function MatchCell({ match }: { match: Match }) {
 
   return (
     <div>
+      {heading && <div className={headingCls}>{heading}</div>}
       {live && (
         <div className="mb-2"><span className="live-pill">Live</span></div>
       )}
@@ -425,8 +447,14 @@ function TeamLine({ team, winner, done }: { team: Team; winner: boolean; done: b
   );
 }
 
+/** One side of a knockout match: the team if already known, else its seed placeholder. */
+function PendingLine({ team, fallback }: { team: Team | null; fallback: string }) {
+  if (team) return <TeamLine team={team} winner={false} done={false} />;
+  return <div className="font-semibold text-ink-100 italic">{fallback}</div>;
+}
+
 function statusPill(slot: Slot) {
-  // Per-match status badges live inside MatchCell now (so 2 live courts each
+  // Per-match status badges live inside MatchCell now (so live courts each
   // get their own indicator). Slot-level pill only shows when the WHOLE slot
   // is in a uniform state worth flagging — currently just "all done → Final".
   if (allDone(slot) && !anyLive(slot)) {
@@ -435,22 +463,12 @@ function statusPill(slot: Slot) {
   return null;
 }
 
-function byeCell(slot: Slot) {
-  if (slot.bye_team) {
-    return <span className="pill-bye inline-block px-2.5 py-1 rounded text-[11px] font-semibold">{slot.bye_team.name}</span>;
-  }
-  if (slot.bye_label) {
-    return <span className="text-ink-300 text-xs">{slot.bye_label}</span>;
-  }
-  return <span className="text-ink-300">—</span>;
+function Free() {
+  return <span className="text-[10px] uppercase tracking-widest text-ink-400 font-semibold">Free</span>;
 }
 
-function Empty() {
-  return <span className="text-ink-400 text-3xl font-light">—</span>;
-}
-
-function isKnockout(slot: Slot) {
-  return slot.matches.some(m => m.stage !== 'group');
+function isAllKnockout(slot: Slot) {
+  return slot.matches.length > 0 && slot.matches.every(m => m.stage !== 'group');
 }
 function anyDone(slot: Slot) {
   return slot.matches.some(m => m.status === 'done');
@@ -461,19 +479,21 @@ function anyLive(slot: Slot) {
 function allDone(slot: Slot) {
   return slot.matches.length > 0 && slot.matches.every(m => m.status === 'done');
 }
-function stageHeading(match: Match) {
-  if (match.stage === 'sf') return match.court === 1 ? 'Semi-final 1' : 'Semi-final 2';
-  return '';
-}
 
 /* ----------------------- mobile slot ----------------------- */
 
 function SlotMobile({ slot, prevSlot }: { slot: Slot; prevSlot: Slot | null }) {
   if (slot.kind === 'break') {
-    return <ArcadeBlastBreakCard startTime={slot.start_time} endTime={slot.end_time} />;
+    return (
+      <ArcadeBlastBreakCard
+        startTime={slot.start_time}
+        endTime={slot.end_time}
+        durationMin={minutesBetween(slot.start_time, slot.end_time)}
+      />
+    );
   }
 
-  const showDivider = isKnockout(slot) && (!prevSlot || !isKnockout(prevSlot));
+  const showDivider = isAllKnockout(slot) && (!prevSlot || !isAllKnockout(prevSlot));
 
   return (
     <>
@@ -496,17 +516,23 @@ function SlotMobile({ slot, prevSlot }: { slot: Slot; prevSlot: Slot | null }) {
 }
 
 function MatchCardMobile({ slot, match }: { slot: Slot; match: Match }) {
+  const heading = knockoutHeading(match);
+  const headingCls = `text-[11px] uppercase tracking-widest font-extrabold mb-1 ${match.bracket_key === 'FINAL' ? 'gold-text' : 'text-brand-gold'}`;
+  const meta = `Court ${match.court}${match.referee ? ` · ${match.referee.name}` : ''}`;
+
   if (match.team_a == null || match.team_b == null) {
+    const [a, b] = placeholderSides(match.stage_label);
     return (
       <div className="surface rounded-lg p-3.5 shadow-card">
         <div className="flex items-center justify-between mb-2">
           <div className="num font-bold">{formatTime(slot.start_time)}</div>
-          <span className="text-[10px] text-ink-300 uppercase tracking-wider">Court {match.court}</span>
+          <span className="text-[10px] text-ink-300 uppercase tracking-wider">{meta}</span>
         </div>
-        <div className={`text-[11px] uppercase tracking-widest font-extrabold mb-1 ${match.stage === 'final' ? 'gold-text' : 'text-brand-gold'}`}>
-          {match.stage === 'final' ? '★ Final' : match.stage === 'third_place' ? 'Placement Match' : stageHeading(match)}
+        {heading && <div className={headingCls}>{heading}</div>}
+        <div className="space-y-1.5">
+          <PendingLine team={match.team_a} fallback={a} />
+          <PendingLine team={match.team_b} fallback={b} />
         </div>
-        <div className="font-semibold text-ink-100 italic">{match.stage_label}</div>
       </div>
     );
   }
@@ -523,9 +549,7 @@ function MatchCardMobile({ slot, match }: { slot: Slot; match: Match }) {
       <div className="flex items-start justify-between gap-3 mb-3">
         <div className="flex items-center gap-3">
           <div className="num text-lg font-extrabold leading-none">{formatTime(slot.start_time)}</div>
-          <div className="text-[10px] text-ink-300 uppercase tracking-wider">
-            Court {match.court}{match.referee ? ` · ${match.referee.name}` : ''}
-          </div>
+          <div className="text-[10px] text-ink-300 uppercase tracking-wider">{meta}</div>
         </div>
         {live
           ? <span className="live-pill">Live</span>
@@ -534,6 +558,8 @@ function MatchCardMobile({ slot, match }: { slot: Slot; match: Match }) {
             : <span className="pill-sched px-2 py-0.5 rounded text-[9px] font-bold tracking-wider uppercase">Scheduled</span>}
       </div>
 
+      {heading && <div className={headingCls}>{heading}</div>}
+
       {!done && !live ? (
         <>
           <div className="flex items-center gap-2 rounded-md bg-white/[0.025] px-2.5 py-2 font-bold"><TeamLogo team={match.team_a} size="xs" /><span className="min-w-0 truncate">{match.team_a.name}</span></div>
@@ -541,6 +567,10 @@ function MatchCardMobile({ slot, match }: { slot: Slot; match: Match }) {
         </>
       ) : (
         <ScoreGrid match={match} aWon={aWon} bWon={bWon} totalA={totalA} totalB={totalB} />
+      )}
+
+      {match.line_ref_team && (
+        <div className="mt-2 text-[10px] text-ink-300">Line referee · {match.line_ref_team.name}</div>
       )}
     </div>
   );

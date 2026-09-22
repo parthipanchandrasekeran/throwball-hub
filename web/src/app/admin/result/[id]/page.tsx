@@ -2,8 +2,8 @@ import Link from 'next/link';
 import { redirect, notFound } from 'next/navigation';
 import { revalidatePath } from 'next/cache';
 import { supabase } from '@/lib/supabase';
-import { formatTime, setBreakdown } from '@/lib/format';
-import type { Team } from '@/lib/types';
+import { divisionLabel, formatTime, setBreakdown } from '@/lib/format';
+import type { Division, Team } from '@/lib/types';
 import { TeamLogo } from '@/components/TeamLogo';
 
 export const revalidate = 0;
@@ -11,13 +11,14 @@ export const revalidate = 0;
 type MatchRow = {
   id: number;
   court: number;
+  division: Division;
   score_a: number | null;
   score_b: number | null;
   set1_a: number | null; set1_b: number | null;
   set2_a: number | null; set2_b: number | null;
   set3_a: number | null; set3_b: number | null;
   status: 'scheduled' | 'done';
-  stage: 'group' | 'sf' | 'final' | 'third_place';
+  stage: 'group' | 'qf' | 'sf' | 'final' | 'third_place';
   stage_label: string | null;
   team_a: Team | null;
   team_b: Team | null;
@@ -29,12 +30,12 @@ async function loadMatch(id: number): Promise<MatchRow | null> {
   const { data, error } = await supabase
     .from('matches')
     .select(`
-      id, court,
+      id, court, division,
       score_a, score_b,
       set1_a, set1_b, set2_a, set2_b, set3_a, set3_b,
       status, stage, stage_label,
-      team_a:teams!team_a_id ( id, name, short_name, color, logo_url ),
-      team_b:teams!team_b_id ( id, name, short_name, color, logo_url ),
+      team_a:teams!team_a_id ( id, name, short_name, color, logo_url, division ),
+      team_b:teams!team_b_id ( id, name, short_name, color, logo_url, division ),
       referee:referees ( name ),
       slot:slots!slot_id ( start_time, end_time )
     `)
@@ -45,7 +46,7 @@ async function loadMatch(id: number): Promise<MatchRow | null> {
 }
 
 async function loadTeams(): Promise<Team[]> {
-  const { data } = await supabase.from('teams').select('id, name, short_name, color, logo_url').order('display_order');
+  const { data } = await supabase.from('teams').select('id, name, short_name, color, logo_url, division').order('display_order');
   return (data ?? []) as Team[];
 }
 
@@ -134,6 +135,8 @@ export default async function ResultPage({
   const known = match.team_a && match.team_b;
   const done  = match.status === 'done';
   const isKnockout = match.stage !== 'group';
+  // A knockout match can only be played by teams from its own division.
+  const divisionTeams = teams.filter(t => t.division === match.division);
 
   return (
     <div className="max-w-2xl mx-auto px-4 sm:px-6 py-6 sm:py-10">
@@ -143,7 +146,7 @@ export default async function ResultPage({
 
       <div className="mt-4 mb-6">
         <div className="kicker mb-2 text-[10px] sm:text-[11px]">
-          {formatTime(match.slot.start_time)} — {formatTime(match.slot.end_time)} · Court {match.court}
+          {formatTime(match.slot.start_time)} — {formatTime(match.slot.end_time)} · {divisionLabel[match.division]} · Court {match.court}
           {match.referee && <> · Ref {match.referee.name}</>}
         </div>
         <h1 className="display text-xl sm:text-3xl font-bold leading-tight">
@@ -193,10 +196,13 @@ export default async function ResultPage({
         <form action={assignTeams} className="surface rounded-lg p-5 sm:p-6 mb-5 shadow-card">
           <input type="hidden" name="id" value={match.id} />
           <h2 className="text-sm font-bold uppercase tracking-widest text-brand-gold mb-1">Step 1 · Assign teams</h2>
-          <p className="text-xs text-ink-300 mb-5">Once group standings are settled, pick the two teams playing this knockout match.</p>
+          <p className="text-xs text-ink-300 mb-5">
+            Once group standings are settled, pick the two {divisionLabel[match.division]} teams playing this knockout match.
+            {match.stage_label && <> Expected: <span className="italic text-ink-100">{match.stage_label}</span>.</>}
+          </p>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <TeamSelect name="team_a_id" label="Team A" teams={teams} />
-            <TeamSelect name="team_b_id" label="Team B" teams={teams} />
+            <TeamSelect name="team_a_id" label="Team A" teams={divisionTeams} selected={match.team_a?.id} />
+            <TeamSelect name="team_b_id" label="Team B" teams={divisionTeams} selected={match.team_b?.id} />
           </div>
           <button type="submit" className="mt-6 w-full sm:w-auto btn-gold font-bold py-3 sm:py-2.5 px-5 rounded-md text-sm">
             Save teams
@@ -336,14 +342,14 @@ function SetInput({
   );
 }
 
-function TeamSelect({ name, label, teams }: { name: string; label: string; teams: Team[] }) {
+function TeamSelect({ name, label, teams, selected }: { name: string; label: string; teams: Team[]; selected?: number }) {
   return (
     <label className="block">
       <span className="text-[11px] uppercase tracking-widest text-ink-200 font-semibold">{label}</span>
       <select
         name={name}
         required
-        defaultValue=""
+        defaultValue={selected != null ? String(selected) : ''}
         className="field field-gold mt-1 w-full rounded-md px-3 py-2.5 text-sm"
       >
         <option value="" disabled>Select a team…</option>

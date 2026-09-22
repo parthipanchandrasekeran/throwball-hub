@@ -1,14 +1,53 @@
+import type { BracketKey, Division, MatchStage } from './types';
+
 export function formatTime(t: string): string {
   const [h, m] = t.split(':').map(Number);
   const hour = h === 0 ? 12 : h > 12 ? h - 12 : h;
   return `${hour}:${m.toString().padStart(2, '0')}`;
 }
 
+/** Whole minutes between two "HH:MM" strings on the same day. */
+export function minutesBetween(start: string, end: string): number {
+  const [sh, sm] = start.split(':').map(Number);
+  const [eh, em] = end.split(':').map(Number);
+  return (eh * 60 + em) - (sh * 60 + sm);
+}
+
+export const divisionLabel: Record<Division, string> = {
+  gold:   'Gold',
+  bronze: 'Bronze',
+};
+
 export const stageLabel: Record<string, string> = {
+  qf: 'Quarter-final',
   sf: 'Semi-final',
   final: 'Final',
-  third_place: 'Placement Match',
+  third_place: '3rd Place',
 };
+
+/**
+ * Heading for a knockout match, e.g. "Gold · Quarter-final 1", "★ Bronze Final".
+ * Empty string for group matches so callers can render conditionally.
+ */
+export function knockoutHeading(m: { division: Division; stage: MatchStage; bracket_key: BracketKey | null }): string {
+  if (m.stage === 'group') return '';
+  const div = divisionLabel[m.division];
+  switch (m.bracket_key) {
+    case 'QF1':   return `${div} · Quarter-final 1`;
+    case 'QF2':   return `${div} · Quarter-final 2`;
+    case 'SF1':   return `${div} · Semi-final 1`;
+    case 'SF2':   return `${div} · Semi-final 2`;
+    case 'FINAL': return `★ ${div} Final`;
+    case 'THIRD': return `${div} · 3rd Place`;
+    default:      return `${div} · ${stageLabel[m.stage] ?? m.stage}`;
+  }
+}
+
+/** Splits a knockout placeholder like "1st vs QF2 winner" into its two sides. */
+export function placeholderSides(label: string | null): [string, string] {
+  const [a, b] = (label ?? '').split(' vs ');
+  return [a || 'TBD', b || 'TBD'];
+}
 
 /**
  * Formats the per-set breakdown for a completed match,

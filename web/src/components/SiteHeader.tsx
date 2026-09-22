@@ -2,6 +2,9 @@ import Image from 'next/image';
 import { NavLinks } from '@/components/NavLinks';
 import { Countdown } from '@/components/Countdown';
 import { playStoreUrl } from '@/lib/arcadeblast';
+import { EVENT } from '@/lib/event';
+
+const two = (n: number) => String(n).padStart(2, '0');
 
 export function SiteHeader() {
   return (
@@ -11,7 +14,7 @@ export function SiteHeader() {
         <div className="max-w-7xl mx-auto px-3 sm:px-6 py-2 sm:py-3 flex items-center justify-between text-xs gap-2 sm:gap-3">
           <div className="hidden items-center gap-3 text-ink-200 min-w-0 sm:flex">
             <span className="kicker shrink-0">Live</span>
-            <span className="hidden sm:inline truncate">Toronto · Sat 9 May 2026</span>
+            <span className="hidden sm:inline truncate">{EVENT.dateLabel}</span>
           </div>
           <div className="flex min-w-0 flex-1 items-center justify-between gap-2 sm:flex-none sm:justify-end">
             <NavLinks />
@@ -51,21 +54,21 @@ export function SiteHeader() {
 
             {/* Info column */}
             <div className="min-w-0">
-              <div className="kicker mb-2 sm:mb-3">Season 2026</div>
+              <div className="kicker mb-2 sm:mb-3">{EVENT.season}</div>
               <h1 className="hero-title text-3xl sm:text-5xl lg:text-6xl">
-                Women&apos;s National<br />
-                <span className="text-brand-red">Championship</span>
+                {EVENT.titleLines[0]}<br />
+                <span className="text-brand-red">{EVENT.titleLines[1]}</span>
               </h1>
 
               {/* stats */}
               <dl className="mt-4 sm:mt-5 grid grid-cols-4 sm:flex sm:flex-wrap sm:items-center gap-2 sm:gap-x-5 sm:gap-y-3 text-sm text-ink-100">
                 <Stat label="Edition" value="2026" gold />
                 <Divider />
-                <Stat label="Teams"   value="06" />
+                <Stat label="Teams"   value={two(EVENT.teams)} />
                 <Divider />
-                <Stat label="Matches" value="11" />
+                <Stat label="Matches" value={two(EVENT.matches)} />
                 <Divider />
-                <Stat label="Courts"  value="02" />
+                <Stat label="Courts"  value={two(EVENT.courts)} />
               </dl>
 
               <Countdown />

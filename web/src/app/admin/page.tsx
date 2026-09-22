@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import { getSlots, summarizeMatches } from '@/lib/data';
-import { formatTime, setBreakdown } from '@/lib/format';
+import { divisionLabel, formatTime, setBreakdown } from '@/lib/format';
+import { EVENT } from '@/lib/event';
 import type { Match, Slot } from '@/lib/types';
 
 export const revalidate = 0;
@@ -20,7 +21,7 @@ export default async function AdminDashboard() {
     <div className="max-w-6xl mx-auto px-4 sm:px-6 py-6 sm:py-8">
       {/* Header */}
       <div className="mb-6 sm:mb-8">
-        <div className="kicker mb-2">Match Day · 9 May</div>
+        <div className="kicker mb-2">{EVENT.kicker}</div>
         <h1 className="display text-2xl sm:text-3xl font-bold">Control room</h1>
         <p className="text-ink-200 text-sm mt-2 max-w-xl">
           Pick a match and enter the final score. Group standings and the bracket update automatically.
@@ -84,7 +85,7 @@ export default async function AdminDashboard() {
 
               <div className="flex items-baseline gap-2 mb-1">
                 <span className={`text-[10px] uppercase tracking-widest font-bold ${stageColor(match.stage)}`}>
-                  {stageLabel(match.stage)}
+                  {divisionLabel[match.division]} · {stageLabel(match.stage)}
                 </span>
               </div>
 
@@ -140,8 +141,11 @@ export default async function AdminDashboard() {
                   <td className="px-4 py-3 num font-bold">{formatTime(slot.start_time)}</td>
                   <td className="px-4 py-3 num text-ink-200">{match.court}</td>
                   <td className="px-4 py-3">
-                    <span className={`text-[10px] uppercase tracking-widest font-bold ${stageColor(match.stage)}`}>
+                    <span className={`block text-[10px] uppercase tracking-widest font-bold ${stageColor(match.stage)}`}>
                       {stageLabel(match.stage)}
+                    </span>
+                    <span className="block text-[10px] uppercase tracking-wider text-ink-300">
+                      {divisionLabel[match.division]}
                     </span>
                   </td>
                   <td className="px-4 py-3">
@@ -207,14 +211,15 @@ function percent(value: number, total: number) {
 
 function stageLabel(stage: string) {
   if (stage === 'group') return 'Group';
+  if (stage === 'qf')    return 'Quarter';
   if (stage === 'sf')    return 'Semi';
   if (stage === 'final') return 'Final';
-  if (stage === 'third_place') return 'Placement';
+  if (stage === 'third_place') return '3rd Place';
   return stage;
 }
 
 function stageColor(stage: string) {
   if (stage === 'final') return 'gold-text';
-  if (stage === 'sf' || stage === 'third_place') return 'text-brand-gold';
+  if (stage === 'qf' || stage === 'sf' || stage === 'third_place') return 'text-brand-gold';
   return 'text-ink-300';
 }

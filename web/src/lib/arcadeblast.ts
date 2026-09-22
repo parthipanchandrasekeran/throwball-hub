@@ -15,6 +15,6 @@ export const ARCADEBLAST = {
  * which surfaces them in Play Console > Acquisition reports.
  */
 export function playStoreUrl(medium: 'nav-cta' | 'break-card' | 'footer'): string {
-  const ref = `utm_source=throwball-hub&utm_medium=${medium}&utm_campaign=may2026`;
+  const ref = `utm_source=throwball-hub&utm_medium=${medium}&utm_campaign=sept2026`;
   return `https://play.google.com/store/apps/details?id=${ARCADEBLAST.packageId}&referrer=${encodeURIComponent(ref)}`;
 }

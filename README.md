@@ -1,6 +1,8 @@
 # Throwball Hub
 
-Tournament site for the **Throwball Federation of Canada — Women's National Championship 2026**.
+Tournament site for the **Throwball Federation of Canada**. Currently loaded with the
+TFC Throwball Tournament, September 2026 (Gold and Bronze divisions). Previous events are
+archived under `docs/archive/`.
 
 ## Layout
 
@@ -51,4 +53,5 @@ Project: `throwball-hub` · Region: `ca-central-1` · Org: parthipanchandraseker
 
 Tables: `teams`, `referees`, `slots`, `matches` · View: `standings`
 
-Seed: 6 teams, 3 referees, 11 time slots, 19 matches (15 group + 4 knockout placeholders).
+Seed (Sept 2026): 10 teams in two divisions, 5 referees, 12 time slots, 30 matches
+(15 Gold + 6 Bronze group, 9 knockout placeholders). See `CLAUDE.md` for the schema.

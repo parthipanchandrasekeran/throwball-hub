@@ -1,5 +1,7 @@
 import { supabase } from './supabase';
-import type { Slot, StandingsRow } from './types';
+import type { Division, Slot, StandingsRow } from './types';
+
+const TEAM_FIELDS = 'id, name, short_name, color, logo_url, division';
 
 const SLOT_QUERY = `
   id,
@@ -8,20 +10,23 @@ const SLOT_QUERY = `
   end_time,
   kind,
   bye_label,
-  bye_team:teams!bye_team_id ( id, name, short_name, color, logo_url ),
+  bye_team:teams!bye_team_id ( ${TEAM_FIELDS} ),
   matches (
     id,
     court,
+    division,
     score_a, score_b,
     set1_a, set1_b,
     set2_a, set2_b,
     set3_a, set3_b,
     status,
     stage,
+    bracket_key,
     stage_label,
     referee:referees ( name ),
-    team_a:teams!team_a_id ( id, name, short_name, color, logo_url ),
-    team_b:teams!team_b_id ( id, name, short_name, color, logo_url )
+    line_ref_team:teams!line_ref_team_id ( ${TEAM_FIELDS} ),
+    team_a:teams!team_a_id ( ${TEAM_FIELDS} ),
+    team_b:teams!team_b_id ( ${TEAM_FIELDS} )
   )
 `;
 
@@ -54,6 +59,17 @@ export async function getStandings(): Promise<StandingsRow[]> {
     if (b.diff      !== a.diff)      return b.diff      - a.diff;
     return a.name.localeCompare(b.name);
   });
+}
+
+/** Render order for the two divisions. */
+export const DIVISIONS: Division[] = ['gold', 'bronze'];
+
+/** Splits any division-tagged rows (standings, matches, teams) into one list per division, order preserved. */
+export function byDivision<T extends { division: Division }>(rows: T[]): Record<Division, T[]> {
+  return {
+    gold:   rows.filter(r => r.division === 'gold'),
+    bronze: rows.filter(r => r.division === 'bronze'),
+  };
 }
 
 export type MatchSummary = {

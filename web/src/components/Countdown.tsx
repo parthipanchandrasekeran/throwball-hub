@@ -1,9 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-
-// 9 May 2026 8:30 AM Toronto (EDT, UTC-4)
-const TARGET_MS = Date.UTC(2026, 4, 9, 12, 30, 0); // 12:30 UTC == 8:30 EDT
+import { EVENT } from '@/lib/event';
 
 function pad(n: number) { return n.toString().padStart(2, '0'); }
 
@@ -17,7 +15,10 @@ export function Countdown() {
     return () => clearInterval(t);
   }, []);
 
-  const ms = TARGET_MS - now;
+  // Day not announced yet — nothing to count down to.
+  if (EVENT.startsAt == null) return null;
+
+  const ms = EVENT.startsAt - now;
 
   if (ms <= 0) {
     return (

@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
 import { Inter, Space_Grotesk, JetBrains_Mono } from 'next/font/google';
+import { EVENT } from '@/lib/event';
 import './globals.css';
 
 const inter = Inter({
@@ -20,9 +21,10 @@ const jetbrains = JetBrains_Mono({
   weight: ['500', '700', '800'],
 });
 
-const TITLE = "Throwball Hub — Women's National Championship 2026";
+const TITLE = `Throwball Hub — ${EVENT.name} · ${EVENT.dateLabel}`;
 const DESCRIPTION =
-  "Live schedule, standings and results for the Throwball Federation of Canada Women's National Championship — Toronto, 9 May 2026.";
+  `Live schedule, standings and results for the Throwball Federation of Canada ${EVENT.dateLabel} tournament — ` +
+  `Gold and Bronze divisions, ${EVENT.teams} teams, ${EVENT.courts} courts.`;
 
 export const metadata: Metadata = {
   metadataBase: new URL('https://throwball-hub.netlify.app'),
