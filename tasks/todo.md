@@ -46,8 +46,10 @@ Plan: `C:\Users\pc\.claude\plans\zazzy-petting-horizon.md`
   Toronto in `web/src/lib/event.ts`; countdown is back on.
 - ~~Six new teams have no logo~~ — added 2026-09-25 from the user's
   `archive (6)` folder via `web/scripts/make-logo.mjs` (trim + square + 512px);
-  `teams.logo_url` set for all ten teams. Returning teams kept their existing
-  logos even though newer files were supplied (GTA Fireballs, Sauga Strikers,
-  Sauga Slayers, Super Sonics).
+  `teams.logo_url` set for all ten teams. Sauga Strikers and Sauga Slayers
+  tiles were then replaced with the new badge artwork (sponsor footer cropped
+  off with `web/scripts/crop-dark-panel.mjs`, centre square, 512px). GTA
+  Fireballs and Super Sonics still use their earlier logos although newer
+  files were supplied.
 - Admin accounts: admin1–admin5 (2026-09-25). Values in `web/.env.local` and
   mirrored to Netlify env vars via the CLI; site redeployed.
