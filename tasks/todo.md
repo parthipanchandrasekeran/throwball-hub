@@ -44,6 +44,10 @@ Plan: `C:\Users\pc\.claude\plans\zazzy-petting-horizon.md`
 
 - ~~Tournament date is not in the PDF~~ — set to Sat 26 Sept 2026, 9:00 AM
   Toronto in `web/src/lib/event.ts`; countdown is back on.
-- Six new teams have no logo (colored tiles for now): Canadian Warriors,
-  Waterloo Warriors, KWC Firebirds, Ruach Warriors, Sonic Squad, KW Warriors.
-  Drop square PNGs into `web/public/team-logos/` and set `teams.logo_url`.
+- ~~Six new teams have no logo~~ — added 2026-09-25 from the user's
+  `archive (6)` folder via `web/scripts/make-logo.mjs` (trim + square + 512px);
+  `teams.logo_url` set for all ten teams. Returning teams kept their existing
+  logos even though newer files were supplied (GTA Fireballs, Sauga Strikers,
+  Sauga Slayers, Super Sonics).
+- Admin accounts: admin1–admin5 (2026-09-25). Values in `web/.env.local` and
+  mirrored to Netlify env vars via the CLI; site redeployed.
