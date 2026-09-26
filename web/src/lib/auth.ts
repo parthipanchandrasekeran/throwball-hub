@@ -1,20 +1,23 @@
-// Tiny cookie-based auth for the 2 fixed admin accounts.
+// Tiny cookie-based auth for a handful of fixed admin accounts.
 // HMAC-signed cookie via Web Crypto so it's middleware-safe (no Node-only APIs).
 
 import { cookies } from 'next/headers';
 
 const COOKIE = 'th_session';
 const SESSION_HOURS = 8;
+/** Accounts come from ADMIN1_USER/ADMIN1_PASS … ADMIN{MAX_ACCOUNTS}_USER/PASS env vars. */
+const MAX_ACCOUNTS = 10;
 
 type Account = { user: string; pass: string };
 type Session = { user: string; exp: number };
 
 function accounts(): Account[] {
   const list: Account[] = [];
-  if (process.env.ADMIN1_USER && process.env.ADMIN1_PASS)
-    list.push({ user: process.env.ADMIN1_USER, pass: process.env.ADMIN1_PASS });
-  if (process.env.ADMIN2_USER && process.env.ADMIN2_PASS)
-    list.push({ user: process.env.ADMIN2_USER, pass: process.env.ADMIN2_PASS });
+  for (let i = 1; i <= MAX_ACCOUNTS; i++) {
+    const user = process.env[`ADMIN${i}_USER`];
+    const pass = process.env[`ADMIN${i}_PASS`];
+    if (user && pass) list.push({ user, pass });
+  }
   return list;
 }
 

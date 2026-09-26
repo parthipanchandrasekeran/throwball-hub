@@ -130,7 +130,14 @@ Run via Supabase MCP `execute_sql` (project `fbvzlbgyxuucjgutugkk`).
 ```
 NEXT_PUBLIC_SUPABASE_URL=...
 NEXT_PUBLIC_SUPABASE_ANON_KEY=sb_publishable_...
+ADMIN1_USER=... / ADMIN1_PASS=...   # up to ADMIN10_*, see web/src/lib/auth.ts
+AUTH_SECRET=...                     # cookie signing secret; rotate to log everyone out
 ```
 
 Anon key is safe to expose — only allows `SELECT` per RLS policies. Admin
 writes use the service-role key server-side.
+
+Admin accounts are plain env vars, so every `ADMINn_USER`/`ADMINn_PASS` pair
+must also be set in Netlify (Site configuration → Environment variables) and
+the site redeployed before it works in production. As of 2026-09-25 there are
+five: admin1–admin5.

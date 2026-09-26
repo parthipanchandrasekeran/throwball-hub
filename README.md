@@ -44,8 +44,11 @@ NEXT_PUBLIC_SUPABASE_ANON_KEY=sb_publishable_...
 ```
 
 The anon/publishable key is safe to expose — it only allows the `SELECT` policies
-defined in the schema. Admin writes (Phase 2) will use the service-role key
-server-side.
+defined in the schema. Admin writes use the service-role key server-side.
+
+Admin sign-in accounts are `ADMIN1_USER`/`ADMIN1_PASS` up to `ADMIN10_*`, plus
+`AUTH_SECRET` for the session cookie. Set the same variables in Netlify for
+production.
 
 ## Database
 
